@@ -3,8 +3,8 @@ newPackage(
         Version => "0.1", 
         Date => "",
         Authors => {{Name => "Ayah Almousa", 
-                Email => "", 
-                HomePage => ""}
+                Email => "aka66@cornell.edu", 
+                HomePage => "http://pi.math.cornell.edu/~aalmousa"}
             {Name => "Mike Stillman", 
                 Email => "mike@math.cornell.edu", 
                 HomePage => "http://pi.math.cornell.edu/~mike"}},
