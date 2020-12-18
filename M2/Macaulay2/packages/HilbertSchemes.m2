@@ -4,10 +4,10 @@ newPackage(
         Date => "",
         Authors => {{Name => "Ayah Almousa", 
                 Email => "aka66@cornell.edu", 
-                HomePage => "http://pi.math.cornell.edu/~aalmousa"}
+                HomePage => "http://pi.math.cornell.edu/~aalmousa"},
             {Name => "Mike Stillman", 
                 Email => "mike@math.cornell.edu", 
-                HomePage => "http://pi.math.cornell.edu/~mike"}},
+                HomePage => "http://pi.math.cornell.edu/~mike"}
         },
         Headline => "functions for investigating Hilbert schemes",
         PackageExports => {
@@ -567,6 +567,7 @@ TEST ///
 beginDocumentation()
 
 
+
 end---------------------------------------------------------------
 
 
@@ -628,3 +629,17 @@ hilbViaPartition {3,3,3,3,2,2,2,1,1,1,1,1,1,1,1,1,1,1} -- veronese: lex has regu
 L = lexIdeal(S, new Partition from {18, 7, 4})
 hp = hilbertPolynomial(L, Projective => false)
 netList for d from 0 to 30 list {d, hilbertFunction(d, L), sub(hp, {(ring hp)_0 => d})}
+
+
+------------------------------------
+--Development Section
+------------------------------------
+
+restart
+uninstallPackage "HilbertSchemes"
+restart
+installPackage "HilbertSchemes"
+restart
+needsPackage "HilbertSchemes"
+elapsedTime check "HilbertSchemes"
+viewHelp "HilbertSchemes"
