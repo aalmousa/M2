@@ -1,5 +1,5 @@
 Macaulay2
-=========
+==========
 
 Macaulay2 is a system for computing in commutative algebra, algebraic geometry
 and related fields.  The system was originally written by Dan Grayson and Mike
@@ -9,7 +9,6 @@ code.  See our web page [Macaulay2.com](https://macaulay2.com/) for more details
 downloading binary releases.
 
 The structure of this directory is as follows:
-
 * `M2`: contains everything needed by a user to build Macaulay2.
 * `bugs`: contains older bug reports.
 
@@ -32,6 +31,9 @@ will normally contact the authors to get their approval of the change.  If a
 new package with mathematical content is submitted, it will normally be
 accepted if it can be installed with `installPackage` and the tests pass as
 determined by `check`, in the latest version of Macaulay2.
+
+### Getting Started with Macaulay2
+For users new to Macaulay2, we recommend checking out our [documentation](https://macaulay2.com/doc/) and [tutorials](https://macaulay2.com/doc/Tutorials/) to get started.
 
 ### Copyright
 
