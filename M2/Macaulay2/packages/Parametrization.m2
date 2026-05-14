@@ -12,7 +12,7 @@ newPackage(
 	CacheExampleOutput => true,
 	AuxiliaryFiles => true,
 	PackageExports => {"AdjointIdeal"},
-	PackageImports => {"MapleInterface"}
+	PackageImports => {"Complexes", "MapleInterface"}
     	)
 
 -- For information see documentation key "Parametrization" below.
@@ -701,16 +701,6 @@ return(rslt);
 --p=rtpt(-117,-116);
 --p=rtpt(1180943,-14640196896);
 --p_(0,0)^2+1180943*p_(0,1)^2-14640196896*p_(0,2)^2
-
-sign=method()
-sign(ZZ):=(n)->(
-if n>0 then return(1);
-if n<0 then return(-1);
-0)
-sign(QQ):=(n)->(
-if n>0 then return(1);
-if n<0 then return(-1);
-0)
 
 -- Jval(ZZ,ZZ,ZZ)
 -- computes the index of the argument

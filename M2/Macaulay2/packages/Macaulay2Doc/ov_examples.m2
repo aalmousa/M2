@@ -10,6 +10,7 @@ Node
     times
     power
     powermod
+    (sqrt, ZZ, ZZ)
     lcm
     gcd
     gcdCoefficients
@@ -39,7 +40,7 @@ Node
     eagonNorthcott
     regularity
     presentation
-    resolution
+    "OldChainComplexes :: resolution"
     quotient
     quotient'
     quotientRemainder
@@ -54,6 +55,7 @@ Node
     depth -- contains link to package Depth
     height -- TODO
     length
+    complete
     trim
     prune
     numgens
@@ -64,7 +66,6 @@ Node
     directSum
     directProduct
     monomialCurveIdeal
-    syzygyScheme
     isBorel
     isCommutative
     isAffineRing
@@ -81,7 +82,8 @@ Node
     pullback
     pushout
     extend
-    nullhomotopy
+    "OldChainComplexes :: nullhomotopy"
+    isExact
     isInjective
     isSurjective
     isIsomorphism
@@ -119,6 +121,7 @@ Node
     inversePermutation
     partitions
     random
+    shuffle
     Set
     rays
     cone

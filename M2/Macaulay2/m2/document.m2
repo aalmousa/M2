@@ -212,7 +212,7 @@ makeDocumentTag String      := opts -> key -> (
 fixup DocumentTag := DocumentTag => tag -> (
     tag' := if (rawdoc := fetchAnyRawDocumentation tag) =!= null then rawdoc.DocumentTag else tag;
     if package tag =!= package tag' then printerr("warning: ambiguous reference ",
-	format toString tag, " and ", format toString tag', " when processsing ",
+	format toString tag, " and ", format toString tag', " when processing ",
 	toString locate currentDocumentTag);
     tag')
 
@@ -255,7 +255,6 @@ fSeq := new HashTable from splice {
     (2, symbol (*)     ) => s -> (toString s#1, " ", toString s#0), -- postfix operator
     (2, symbol ^*      ) => s -> (toString s#1, " ", toString s#0), -- postfix operator
     (2, symbol _*      ) => s -> (toString s#1, " ", toString s#0), -- postfix operator
-    (2, symbol ~       ) => s -> (toString s#1, " ", toString s#0), -- postfix operator
     (2, symbol ^~      ) => s -> (toString s#1, " ", toString s#0), -- postfix operator
     (2, symbol _~      ) => s -> (toString s#1, " ", toString s#0), -- postfix operator
     (2, symbol !       ) => s -> (toString s#1, " ", toString s#0), -- postfix operator
@@ -647,6 +646,7 @@ KeywordFunctions := new HashTable from {
     Acknowledgement => val -> getSubsection(val, "Acknowledgement"),
     Contributors    => val -> getSubsection(val, "Contributors"),
     References      => val -> getSubsection(val, "References"),
+    Citation        => identity, -- TODO: eventually might want to process this
     Caveat          => val -> getSubsection(val, "Caveat"),
     SeeAlso         => val -> getSubsection(UL (TO \ enlist val), "See also"),
     Subnodes        => val -> getSubnodes enlist val,
@@ -665,6 +665,7 @@ documentOptions := new OptionTable from {
     Acknowledgement => null,
     Contributors => null,
     References => null,
+    Citation => null,
     Caveat => null,
     SeeAlso => null,
     Subnodes => null,
@@ -752,11 +753,6 @@ undocumented Thing := key -> if key =!= null then (
 		currentPackage#"source directory", currentFileName),
 	    "linenum"          => currentRowNumber()
 	    }))
-
--- somehow, this is the very first method called by the Core!!
-undocumented keys undocumentedkeys
-undocumentedkeys = null
-undocumented' = x -> error "late use of function undocumented'"
 
 -----------------------------------------------------------------------------
 -- SYNOPSIS

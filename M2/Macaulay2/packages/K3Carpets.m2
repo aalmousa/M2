@@ -28,7 +28,7 @@ newPackage(
 
 export {
     "schreyerName",
-    -- should be moved to an other package, e.g. NonminimalComplexes
+    -- should be moved to an other package, e.g. Complexes?
     "analyzeStrand",
     "carpetDet",
     "resonanceDet",
@@ -160,7 +160,7 @@ mat
 ///
 
 
-
+importFrom(Core, "preSmithNormalForm") 
 analyzeStrand = method()
 analyzeStrand(Complex,ZZ) := (F,a) -> (
     mainStrand := constantStrand(F,a+1);
@@ -170,7 +170,8 @@ analyzeStrand(Complex,ZZ) := (F,a) -> (
     M2 := mainStrand.dd_a;
     M2Z := lift(M2,ZZ);
     assert(M1Z*M2Z == 0);
-    M1s := smithNormalForm(M1Z,ChangeMatrix=>{false,false});
+    M1s := first preSmithNormalForm(M1Z,ChangeMatrix=>{false,false},KeepZeroes=>false);
+    -- M1s := smithNormalForm(M1Z,ChangeMatrix=>{false,false},KeepZeroes=>false); -- takes much longer time in examples
     L := apply(rank source M1s,i->M1s_(i,i));
     assert(diagonalMatrix L == M1s);
     assert(product L == 1);
@@ -178,7 +179,8 @@ analyzeStrand(Complex,ZZ) := (F,a) -> (
     cM2 := complex M2Z;
     compare := extend(cM1,cM2,id_cM1_0);
     M:= compare_1;
-    elapsedTime Ms := smithNormalForm(M,ChangeMatrix=>{false,false});
+    elapsedTime Ms := first preSmithNormalForm(M,ChangeMatrix=>{false,false},KeepZeroes=>false);
+    -- elapsedTime Ms := smithNormalForm(M,ChangeMatrix=>{false,false},KeepZeroes=>false); -- takes much longer time in examples  
     L = apply(rank source Ms,i->Ms_(i,i));
     assert(diagonalMatrix L == Ms);
     L1:= select(L,d-> d!=1);
@@ -1022,7 +1024,7 @@ $$
         TO carpetBettiTable,
 	TO analyzeStrand,
 	TO degenerateK3BettiTables,
-	TO schreyerName, -- should be moved to an other package, e.g. NonminimalComplexes
+	TO schreyerName, -- should be moved to an other package, e.g. Complexes?
         TO allGradings,
 	TO carpetDet,
 	TO resonanceDet,

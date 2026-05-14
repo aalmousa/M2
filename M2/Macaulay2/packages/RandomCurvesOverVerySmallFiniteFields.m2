@@ -10,7 +10,7 @@ newPackage(
 			   HomePage =>"https://www.math.uni-sb.de/ag/schreyer"}},
 	Headline=> "general canonical curves of genus <= 15 over fields with small characteristic",
 	Keywords => {"Examples and Random Objects"},
-	PackageImports => {"Elimination","Truncations"}
+	PackageImports => {"Elimination","Truncations","Complexes"}
 	)
     
 export{"isSmoothCurve",
@@ -104,7 +104,7 @@ isSmoothCurve (Ideal) := C -> (
 --This function puts everything together
 smoothCanonicalCurve = method(Options => {Details => false, Printing => false})
 smoothCanonicalCurve (ZZ,ZZ) := opt -> (g,p) -> (
-    if p == 57 then error "57 is the Grotehdieck prime number";
+    if p == 57 then error "57 is the Grothendieck prime number";
     if isPrime(p) == false then error "p is not prime";
     if (g > 15) then error"not implemented yet";
     if (g < 11) then (
@@ -317,20 +317,16 @@ undocumented { expectedBetti, (expectedBetti,RingElement), (expectedBetti, List,
 -- rational entries produce an error
 -- multigraded R's work only if the betti Tally
 -- contains degrees of the correct degree length
-Ring ^ BettiTally := (R,b) -> (
-     F := new ChainComplex;
-     F.ring = R;
-     --apply(pDim b,i->F_i = null);
-     for k in keys b do (
-	  -- the keys of a betti table have the form
-	  -- (homological degree, multidegree, weight)
-	  (i,d,h) := k;
-	  -- use F_i since it gives 0 if F#0 is not defined
-	  F#i = F_i ++ R^{b#k:-d};
-	  );
-     F
-     );
 
+Ring ^ BettiTally := Complex => (R,b) -> (
+    -- direct sum of complexes
+    if #keys b === 0 then return complex R^0;
+    directSum for k in keys b list (
+	  (i,d,h) := k;
+      complex(R^{b#k:-d}, Base => i)
+      )
+    )
+ 
 ----------------------------------------------------------------------------------------------------------------------------
 
 --------------------

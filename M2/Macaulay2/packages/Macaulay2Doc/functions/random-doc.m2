@@ -17,12 +17,13 @@ Node
     (random, ZZ, ZZ)
     (random, QQ)
     (random, Type)
-    (random, List)
     (random, ZZ, Ideal)
     (random, ZZ, Ring)
     (random, Module)
     (random, Module, Module)
+    randomElement
     setRandomSeed
+    randomSubset
 
 Node
   Key
@@ -100,10 +101,8 @@ Node
   Description
     Text
       If the @TT "Height"@ option specifies a number @TT "h"@ and @TT "T"@
-      is @TO "ZZ"@ then the integers returned are in the range @TT "[0, h)"@.
-      If @TT "T"@ is @TO QQ@, then the results are drawn from the uniform
-      distribution on @TT "[0, h]"@ and rounded to the nearest rational number
-      with denominator bounded by @TT "h"@.
+      is @TO "ZZ"@ then the integers returned are in the range @TT "[0, h)"@;
+      for @TO "QQ"@ the numerator and denominator are in the range @TT "[1, h]"@.
     Example
       random RR
       random CC_100
@@ -179,19 +178,23 @@ Node
 
 Node
   Key
-    (random, List)
+     randomElement
+    (randomElement, List)
+--    (random, List)
   Headline
-    shuffle a list randomly
+    select a random element of a list
   Usage
-    random L
+    randomElement L
   Inputs
     L:List
   Outputs
-    :List
-      a new list containing the elements of @TT "L"@ in a shuffled random order
+    :Thing -- random element of @VAR "L"@
   Description
     Example
-      random toList (0 .. 12)
+      randomElement toList (0 .. 12)
+    Text
+      In the near future, this will also be the behavior of
+      @TO (random, List)@.
   SeeAlso
     setRandomSeed
 

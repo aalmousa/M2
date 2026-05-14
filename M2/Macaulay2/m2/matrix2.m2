@@ -24,7 +24,49 @@ smithNormalForm = method(
      	  KeepZeroes => true
 	  }
      )
-smithNormalForm Matrix := o -> (f) -> (
+smithNormalForm Matrix := o -> A -> (
+    (D',P,Q) := preSmithNormalForm(A,o);
+    D := mutableMatrix D';
+    -- get into a diagonal matrix
+    n := min(numRows D, numColumns D);
+    start'i := 0;
+    done := false;
+    P' := mutableMatrix map((ring D')^(numRows D'));
+    Q' := mutableMatrix map((ring D')^(numColumns D'));
+    while not done do (
+	pos'i := position(start'i..(n-2),j->D_(j+1,j+1)!=0 and D_(j+1,j+1) % D_(j,j) != 0);	
+	if pos'i === null then (
+	    if start'i > 0 then start'i = 0 else done = true
+	    ) else (
+	    i := pos'i + start'i;
+	    start'i = i + 1;
+	    a := D_(i,i);
+	    b := D_(i+1,i+1);
+	    (g,e,f) := gcdCoefficients(a,b);
+	    D_(i,i) = g;
+	    D_(i+1,i+1) = lcm(a,b);
+	    rowAdd(P',i+1,e,i);
+	    rowAdd(P',i,1-a//g,i+1);
+	    rowAdd(P',i+1,-1,i);
+	    rowAdd(Q',i,f,i+1);
+	    rowAdd(Q',i+1,(a//g-1)*b//g,i);
+    )
+	);-- end while 
+    P'' := matrix P';
+    Q'' := matrix Q';
+    if P =!= null then P = P'' * P;
+    if Q =!= null then Q = Q * transpose Q'';
+    unsequence nonnull (P'' * D' * transpose Q'', P, Q)
+)
+
+preSmithNormalForm = method(
+     Options => {
+	  ChangeMatrix => {true, true},		    -- target, source
+     	  KeepZeroes => true
+	  }
+     )
+preSmithNormalForm Matrix := o -> (f) -> (
+     pruneSyz := m -> generators gb(syz m, Syzygies=>false, ChangeMatrix=>false);
      if not isFreeModule source f or not isFreeModule target f then error "expected map between free modules";
      (tchg,schg,keepz) := (o.ChangeMatrix#0, o.ChangeMatrix#1,o.KeepZeroes);
      (tmat,smat) := (null,null);	-- null represents the identity, lazily
@@ -53,7 +95,7 @@ smithNormalForm Matrix := o -> (f) -> (
 	  if op then (
 	       if tchg then (
 	       	    chg := getChangeMatrix G;
-	       	    zer := syz G;
+	       	    zer := pruneSyz G;
 		    if keepz then (
 			 if tmat === null
 			 then (tmat,tzer) = (chg,zer)
@@ -65,7 +107,7 @@ smithNormalForm Matrix := o -> (f) -> (
 	  else (
 	       if schg then (
 	       	    chg = getChangeMatrix G;
-	       	    zer = syz G;
+	       	    zer = pruneSyz G;
 		    if keepz then (
 			 if smat === null
 			 then (smat, szer) = (chg, zer)
@@ -77,7 +119,7 @@ smithNormalForm Matrix := o -> (f) -> (
 	  g = transpose h;
 	  op = not op;
 	  count = count + 1;
-	  );
+	  ); -- end while
      if op then g = transpose g;
      if tchg then (
 	  if tmat === null
@@ -99,11 +141,19 @@ smithNormalForm Matrix := o -> (f) -> (
 	       else schange = smat));
      g = lift(g,R);
      -- D == P f Q ;
-     D := map(R^(numgens target g),,g);			    -- this makes D homogeneous, if possible
-     P := if tchg then map(target D,target f,lift(tchange,R));
-     Q := if schg then map(source f, source D,lift(schange,R));
-     unsequence nonnull ( D, P, Q ))
+     D := if not keepz then map(R^(numgens target g),,g) else (
+	 m := numgens target f;
+	 n := numgens source f;
+	 m' := numgens target g;
+	 n' := numgens source g;
+	 (map(R^m',R^n',g) | map(R^m',R^(n-n'),0)) || map(R^(m-m'),R^n,0) 
+	 );			    -- this makes D homogeneous, if possible
+     P := if tchg then map(target D, target f, lift(tchange,R));
+     Q := if schg then map(source f, source D, lift(schange,R));
+     ( D, P, Q )
+     )
 
+ 
 complementOkay = method()     -- modeled after isAffineRing, but allows ZZ, too
 complementOkay Ring := R -> isField R or R === ZZ
 complementOkay PolynomialRing := R -> (
@@ -152,10 +202,10 @@ mingens Module := Matrix => opts -> M -> M.cache.mingens ??= if isFreeModule M t
 	  if M.?generators then (
 	       if M.?relations then (
 		    if opts.Strategy === Complement and isHomogeneous M and isAffineRing ring M then (
-			 c := mingens mingb (M.generators|M.relations);
+			 c := mingens mingb fullgens M;
 			 c * complement(M.relations // c))
 		    else (
-	  	    	 tot := mingb(M.generators|M.relations);
+			 tot := mingb fullgens M;
 		    	 rel := mingb(M.relations);
 		    	 mingens mingb (mingens tot % rel)))
 	       else mingens mingb M.generators)
@@ -193,7 +243,7 @@ trim Module := Module => opts -> M -> M.cache#(symbol trim => opts) ??= if isFre
 			 if gns === M.generators and rlns === M.relations then M
 			 else subquotient(F, gns, zr rlns))
 		    else if opts.Strategy === Inhomogeneous then (
-	  	    	 tot := mingb(M.generators|M.relations);
+			 tot := mingb fullgens M;
 		    	 rel := mingb(M.relations);
 			 if tot === M.generators and rel === M.relations 
 			 then M
@@ -346,6 +396,7 @@ Matrix \\ Matrix := Matrix => (g, f) -> quotient'(f, g)
 quotient(Matrix, Matrix) := Matrix => opts -> (f, g) -> (
     -- given f: A-->C and g: B-->C, then find (f//g): A-->B such that g o (f//g) + r = f
     if target f != target g then error "quotient: expected maps with the same target";
+    if f == 0 then return map(source g, source f, 0);
     c := runHooks((quotient, Matrix, Matrix), (opts, f, g), Strategy => opts.Strategy);
     if c =!= null then c else error "quotient: no method implemented for this type of input")
 
@@ -358,18 +409,29 @@ addHook((quotient, Matrix, Matrix), Strategy => Default,
 	    MinimalGenerators => opts.MinimalGenerators };
 	map(source g, source f, homomorphism(homomorphism'(f, opts) // Hom(source f, g, opts)))))
 
--- FIXME: this is still causing unreasonable slow downs, e.g. for (large m) // (scalar)
-addHook((quotient, Matrix, Matrix), Strategy => "Reflexive", (opts, f, g) -> if f == 0 or isFreeModule source f then (
-     L := source f;	     -- result may not be well-defined if L is not free
+addHook((quotient, Matrix, Matrix), Strategy => "Reflexive", (opts, f, g) -> (
+     L := source f;
      M := target f;
      N := source g;
+     -- TODO: should this be a separate strategy?
+     if not isFreeModule L then return (
+	 -- result may not be well-defined if L is not free,
+	 -- unless the composition h * syz p is zero
+	 p := coverMap L;
+	 h := quotient(f * p, g, Strategy => "Reflexive");
+	 -- TODO: does h * gens ker p != 0 suffice?
+	 if h * inducedMap(source p, kernel p) == 0 then map(N, L, h));
+     --
      if M.?generators then (
 	  M = cokernel presentation M;	    -- this doesn't change the cover
 	  );
      -- now M is a quotient module, without explicit generators
      f' := matrix f;
      g' := matrix g;
-     G := ( g.cache#"gb for quotient" ??= (
+     G := (
+	  if g.cache#?"gb for quotient"
+	  then g.cache#"gb for quotient"
+	  else g.cache#"gb for quotient" = (
 	       if M.?relations 
 	       then gb(g' | relations M, ChangeMatrix => true, SyzygyRows => rank source g')
 	       else gb(g',               ChangeMatrix => true)));
@@ -472,13 +534,9 @@ support Ideal       := I -> support generators I
 --------------------
 homogenize = method()
 
-listZ := v -> (
-     if not all(v,i -> class i === ZZ) then error "expected list of integers";
-     )
-
 homogCheck := (R, f, v, wts) -> (
      if R =!= ring v then error "homogenization requires variable in the same ring";
-     listZ wts;
+     wts = listZZ wts;
      if degreeLength R =!= 1 then error "homogenization requires degrees of length 1";
      -- if # wts != numgens ring f then error "homogenization weight vector has incorrect length";
      i := index v;

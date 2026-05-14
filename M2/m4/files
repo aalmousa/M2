@@ -10,27 +10,15 @@ distributions/top/preremove
 distributions/top/postinstall
 distributions/tar/Makefile
 distributions/dmg/Makefile
-distributions/rpm/Makefile
-distributions/rpm/Macaulay2-body.spec
-distributions/rpm/Macaulay2-common-body.spec
 distributions/freebsd/Makefile
 distributions/freebsd/post-install
 distributions/freebsd/post-deinstall
-distributions/deb/Makefile
-distributions/deb/macaulay2-common/postrm
-distributions/deb/macaulay2-common/postinst
-distributions/deb/macaulay2-common/prerm
-distributions/deb/macaulay2-common/preinst
-distributions/deb/macaulay2/postrm
-distributions/deb/macaulay2/postinst
-distributions/deb/macaulay2/prerm
-distributions/deb/macaulay2/preinst
 libraries/Makefile
 libraries/4ti2/Makefile
 libraries/M2/Makefile
+libraries/Macaulay2-docs/Makefile
 libraries/Makefile.library
 libraries/cddlib/Makefile
-libraries/cddplus/Makefile
 libraries/cohomcalg/Makefile
 libraries/csdp/Makefile
 libraries/eigen/Makefile
@@ -47,7 +35,6 @@ libraries/glpk/Makefile
 libraries/gmp/Makefile
 libraries/gtest/Makefile
 libraries/lapack/Makefile
-libraries/libtool/Makefile
 libraries/linbox/Makefile
 libraries/lrslib/Makefile
 libraries/mathic/Makefile
@@ -60,7 +47,6 @@ libraries/msolve/Makefile
 libraries/nauty/Makefile
 libraries/normaliz/Makefile
 libraries/ntl/Makefile
-libraries/pari/Makefile
 libraries/polymake/Makefile
 libraries/readline/Makefile
 libraries/tbb/Makefile
@@ -75,6 +61,7 @@ Macaulay2/bin/Makefile
 Macaulay2/bin/M2
 Macaulay2/e/Makefile
 Macaulay2/e/Makefile.common
+Macaulay2/e/Makefile.files
 Macaulay2/e/unit-tests/Makefile
 Macaulay2/editors/Makefile
 Macaulay2/html-check-links/Makefile
@@ -109,4 +96,3 @@ Macaulay2/tests/gigantic/Makefile
 Macaulay2/tests/goals/Makefile
 Macaulay2/tests/quarantine/Makefile
 Macaulay2/tests/rationality/Makefile
-Macaulay2/util/Makefile

@@ -24,8 +24,8 @@ doc ///
 	  { M2CODE "help \"Macaulay2\"",	  { " -- display the top of the documentation tree" }},
           { M2CODE "help \"matrices\"",           { " -- display an overview of matrices in Macaulay2" }},
 	  { M2CODE "help X",                      { " -- display the documentation node whose key is ", TT "X" }},
-	  { M2CODE "help res",                    { " -- documentation for the function ", TO "res", " and ways to use it" }},
-          { M2CODE "help(res, Module)",           { " -- documentation for the method ", TO (res, Module) }},
+	  { M2CODE "help res",                    { " -- documentation for the function ", TO "OldChainComplexes :: res", " and ways to use it" }},
+          { M2CODE "help(res, Module)",           { " -- documentation for the method ", TO "OldChainComplexes :: resolution(Module)" }},
 	  { M2CODE "help Module",                 { " -- documentation for the type ", TO "Module", " and methods that take one as input" }},
 	  { M2CODE "help symbol **",              { " -- documentation for the operator ", TO "**", " and its various uses and meanings" }},
           { M2CODE "help(symbol **, Ring, Ring)", { " -- documentation for the method ", TO (symbol **, Ring, Ring) }},
@@ -226,6 +226,7 @@ Node
     (about, String)
     (about, Symbol)
     (about, Type)
+    (about, Keyword)
   Headline
     search the documentation
   Usage
@@ -371,8 +372,8 @@ Node
 	  { M2CODE "help \"getting started\"", 		 "" },
 	  { M2CODE "help \"a first Macaulay2 session\"", "" },
 	  { M2CODE "help coker", 			 "-- show documentation for coker" },
-	  { M2CODE "help about Ext", 			 "-- show documentation about Ext" },
-	  { M2CODE "help about(\"Yoneda\", Body=>true)", "-- show documentation mentioning \"Yoneda\"" },
+	  { M2CODE "headlines about Ext", 		 "-- show a list of documentation headlines about Ext" },
+	  { M2CODE "headlines about(\"Yoneda\", Body=>true)", "-- show a list of documentation headlines mentioning \"Yoneda\"" },
 	  { M2CODE "printWidth = 80", 			 "-- set print width to 80 characters" },
 	  { M2CODE "viewHelp", 				 "-- view documentation in a browser" },
 	  { M2CODE "viewHelp coker", 			 "-- view documentation for coker in browser" },

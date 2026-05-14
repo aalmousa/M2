@@ -10,6 +10,7 @@ newPackage(
 		     HomePage => "http://www.math.uni-sb.de/ag-schreyer/index.php/people/researchers/74-michael-hahn"}},
 	 Headline=> "the relative canonical resolution for g-nodal canonical curves with a fixed g^1_k",
 	 Keywords => {"Commutative Algebra"},
+         PackageExports => {"Complexes"},
 	 Certification => {
 	        "journal name" => "The Journal of Software for Algebra and Geometry",
 		"journal URI" => "https://msp.org/jsag/",
@@ -18,7 +19,6 @@ newPackage(
 		"published article URI" => "https://msp.org/jsag/2021/11-1/p03.xhtml",
          	"published article DOI" => "10.2140/jsag.2021.11.15",
 		"published code URI" => "https://msp.org/jsag/2021/11-1/jsag-v11-n1-x03-RelativeCanonicalResolution.m2",
-     	        "repository code URI" => "https://github.com/Macaulay2/M2/blob/master/M2/Macaulay2/packages/RelativeCanonicalResolution.m2",
 		"release at publication" => "2f0290ad1bf65508e8f3cf63579447ef3153486f",	    -- git commit number in hex
 		"version at publication" => "1.0",
 		"volume number" => "11",
@@ -181,7 +181,7 @@ balancedPartition (ZZ,ZZ) := (n,m) -> ( -- m items list of length n
       (L,L1) := ({},{});
       PHI := matrix map(S^1,S^1,0_S);
       while (#flatten entries PHI < g) do (
-      pts := random(apply(p,i -> matrix{{i,1}})|{matrix{{1,0}}});
+      pts := shuffle(apply(p,i -> matrix{{i,1}})|{matrix{{1,0}}});
       while (#L < g or #(unique flatten L) < #(flatten L)) do (  
              (L,L1) = ({},{}); 
 	     f := random(S^1, S^{2:-k});
@@ -267,7 +267,7 @@ resCurveOnScroll (Ideal,ZZ,ZZ) := (Jcan,g,lengthRes) -> (
                     M = M0_(select(cols,j -> ((degrees source M0)_j)_0 == degsH_(i-1)));
 		    if (rank source M < rkSyzModules(1+i,k) ) then error("DegreeLimit too low");
                     M));
-    chainComplex resX       
+    complex resX       
      );   
     
 resCurveOnScroll (Ideal,ZZ) := (Jcan,g) -> ( 
@@ -289,7 +289,7 @@ resCurveOnScroll (Ideal,ZZ) := (Jcan,g) -> (
                     M = M0_(select(cols,j -> ((degrees source M0)_j)_0 == degsH_(i-1)));
 		    if (rank source M < rkSyzModules(1+i,k) ) then error("DegreeLimit too low");
                     M));
-    chainComplex resX        
+    complex resX        
      );
 
 ---------------------------------------------------------------
@@ -326,7 +326,7 @@ bettiENtype (ZZ,ZZ,ZZ,ZZ) := (b,a,f,mult) -> (
 -- Computes the Eagon-Northcott type resolution. 
 -- The function is based on the Eagon-Northcott function by Greg Smith.
 -- Input: twist b of the Ruling and matrix Phi defining the scroll, thus defining the differentials
--- Output: a chain complex, the Eagon-Northcott type complex
+-- Output: a Complex, the Eagon-Northcott type complex
 
 eagonNorthcottType = method()
 eagonNorthcottType (Matrix,ZZ) := (Phi,b) -> (
@@ -362,7 +362,7 @@ eagonNorthcottType (Matrix,ZZ) := (Phi,b) -> (
 		     t := first select(toList(0..g-1), l -> vec#l == 1);
 		     (-1)^(s+1)*Phi_(t,q#0#s))))
        );	
-     chainComplex d)
+     complex d)
 
 
 -- lifts a monomial to the Eagon-Nortcott type resolution
@@ -436,7 +436,7 @@ matrix apply(rank target A, i ->
 -- Output: the iterated mapping cone
 
 iteratedCone = method()
-iteratedCone (ChainComplex,List) := (resX,e) -> ( 
+iteratedCone (Complex,List) := (resX,e) -> ( 
    k := length(e)+1;
    g := sum(e)+k-1;
    kk := coefficientRing ring resX_0;
@@ -585,7 +585,7 @@ doc ///
     l: ZZ
        the length limit of the resolution          
   Outputs
-    resX: ChainComplex
+    resX: Complex
           the relative canonical resolution       
   Description
      Text
@@ -642,7 +642,7 @@ doc ///
     b: ZZ
        the twist     
   Outputs
-    ENresolution: ChainComplex
+    ENresolution: Complex
                   the Eagon-Northcott type resolution     
   Description
      Text
@@ -698,18 +698,18 @@ doc ///
 doc ///
   Key 
     iteratedCone
-    (iteratedCone,ChainComplex,List) 
+    (iteratedCone,Complex,List) 
   Headline 
     Computes a (possibly non-minimal) resolution of C in P^{g-1} starting from the relative canonical resolution of C in P(E)
   Usage
     resC=iteratedCone(resX,e)
   Inputs
-    resX: ChainComplex
+    resX: Complex
           the relative canonical resolution
     e: List
        the type of the scroll $P(E)$   
   Outputs
-    resC: ChainComplex
+    resC: Complex
        	  the resolution of C obtained by an iterated mapping cone     
   Description
      Text

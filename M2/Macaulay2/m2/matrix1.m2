@@ -4,17 +4,9 @@ needs "matrix.m2"
 needs "modules.m2"
 needs "quotient.m2"
 
-notsamering := (X,Y) -> (
-     if X === Y then error("expected ",pluralsynonym X, " for the same ring")
-     else error("expected ",X.synonym," and ",Y.synonym," for the same ring"))
-nottosamering := (X,Y) -> (
-     if X === Y then error("expected ",pluralsynonym X, " for compatible rings")
-     else error("expected ",X.synonym," and ",Y.synonym," for compatible rings"))
-samering = (M,N) -> if ring M === ring N then (M,N) else notsamering(class M,class N)
-tosamering := (M,N) -> if ring M === ring N then (M,N) else (
-     z := try 0_(ring M) + 0_(ring N) else nottosamering(class M,class N);
-     (promote(M,ring z),promote(N,ring z)))
+-----------------------------------------------------------------------------
 
+module RingFamily :=
 module Ring := Module => (cacheValue symbol module)(R -> R^1)
 
 matrix(RingFamily,List) := Matrix => opts -> (R,m) -> matrix(default R, m, opts)
@@ -55,7 +47,7 @@ makeRawTable := (R,p) -> (					    -- this is messy
 map(Module,Nothing,Matrix) := Matrix => o -> (M,nothing,p) -> (
     -- TODO: why give an error? Compare with map(Module,Nothing,RawMatrix)
      if o.Degree =!= null then error "Degree option given with indeterminate source module";
-     samering(M,p);
+     sameRing(M,p);
      R := ring M;
      if M.?generators then (
 	  M' := source M.generators;
@@ -165,7 +157,7 @@ concatBlocks = mats -> (
      else if #(mats#0) === 1
      then concatRows (mats/first)
      else (
-     	  sameringMatrices flatten mats;
+     	  sameRingMatrices flatten mats;
 	  sources := applyTable(mats,source);
 	  targets := transpose applyTable(mats,target);
 	  -- if not same sources then error "expected matrices in the same column to have equal sources";
@@ -267,6 +259,10 @@ matrix(Matrix) := Matrix => opts -> (m) -> (
      )
 
 matrix RingElement := matrix Number := opts -> r -> matrix({{r}}, opts)
+matrix(Ring,       RingElement) :=
+matrix(RingFamily, RingElement) :=
+matrix(Ring,       Number)      :=
+matrix(RingFamily, Number)      := opts -> (R, f) -> matrix(R, {{f}}, opts)
 
 matrix List := Matrix => opts -> L -> (
     if #L === 0 then return matrix(ZZ, {});
@@ -309,14 +305,15 @@ subquotient(Nothing,Matrix) := (null,relns) -> (
 	  Mparts = append(Mparts, symbol relations => relns);
 	  );
      new Module of Vector from hashTable Mparts)
-subquotient(Matrix,Nothing) := (subgens,null) -> (
-     R := ring subgens;
-     E := target subgens;
-     rE := E.RawFreeModule;
-     subgens = align matrix subgens;
+subquotient(Matrix, Nothing) := (subgens0, null) -> (
+    R := ring subgens0;
+    E := target subgens0;
+    rE := E.RawFreeModule;
+    subgens := align matrix subgens0;
      if E.?generators then subgens = E.generators * subgens;
      Mparts := {
 	  symbol cache => new CacheTable from { 
+	    symbol Monomials => subgens0,
 	       cache => new MutableHashTable	    -- this hash table is mutable, hence has a hash number that can serve as its age
 	       },
 	  symbol RawFreeModule => rE,
@@ -328,16 +325,16 @@ subquotient(Matrix,Nothing) := (subgens,null) -> (
 	  Mparts = append(Mparts, symbol relations => E.relations);
 	  );
      new Module of Vector from hashTable Mparts)
-subquotient(Matrix,Matrix) := (subgens,relns) -> (
-     R := ring relns;
-     E := target subgens;
+subquotient(Matrix, Matrix) := (subgens0, relns) -> (
+    R := ring relns;
+    E := target subgens0;
      if E =!= target relns then error "expected maps with the same target";
      rE := E.RawFreeModule;
      n := rawRank rE;
      if n == 0 then new Module from (R,rE)
      else (
 	  relns = align matrix relns;
-	  subgens = align matrix subgens;
+	subgens := align matrix subgens0;
 	  if E.?generators then (
 	       relns = E.generators * relns;
 	       subgens = E.generators * subgens;
@@ -345,6 +342,7 @@ subquotient(Matrix,Matrix) := (subgens,relns) -> (
 	  if E.?relations then relns = relns | E.relations;
 	  Mparts := {
 	       symbol cache => new CacheTable from { 
+		symbol Monomials => subgens0,
 		    cache => new MutableHashTable	    -- this hash table is mutable, hence has a hash number that can serve as its age
 		    },
 	       symbol RawFreeModule => rE,
@@ -370,8 +368,8 @@ subquotient(Module,Nothing,Nothing) := (F,g,r) -> F
 
 Matrix ** Matrix := Matrix => (A, B) -> tensor(A, B)
 tensor(Matrix, Matrix) := Matrix => {} >> opts -> ((f, g) -> (
-     samering(target f,target g);
-     samering(source f,source g);
+     sameRing(target f,target g);
+     sameRing(source f,source g);
      R := ring target f;
      if f === id_(R^1) then return g;
      if g === id_(R^1) then return f;
@@ -394,13 +392,13 @@ Number ** RingElement :=
 RingElement ** Number := 
 RingElement ** RingElement := (r,s) -> matrix {{r}} ** matrix {{s}}
 
-Matrix#AfterPrint = Matrix#AfterNoPrint = f -> (
+Matrix.AfterPrint = Matrix.AfterNoPrint = f -> (
     class f,
     (
-	(tar, src) := apply((target f, source f), M -> moduleAbbrv(M, null));
+	(tar, src) := apply((target f, source f), moduleAbbrv);
 	if tar =!= null and src =!= null
-	then (" ", new MapExpression from expression \ {tar, src}))
-    )
+	then (" ", MapExpression(tar, src))
+    ))
 
 -- precedence Matrix := x -> precedence symbol x
 
@@ -486,11 +484,11 @@ Module / Ideal := Module => (M,J) -> M / (J * M)
 Ideal#AfterPrint = Ideal#AfterNoPrint = (I) ->  (Ideal," of ",ring I)
 
 Ideal ^ ZZ := Ideal => (I,n) -> ideal symmetricPower(n,generators I)
-Ideal * Ideal := Ideal => ((I,J) -> ideal flatten (generators I ** generators J)) @@ samering
-Ideal * Module := Module => ((I,M) -> subquotient (generators I ** generators M, relations M)) @@ samering
-Ideal + Ideal := Ideal => ((I,J) -> ideal (generators I | generators J)) @@ tosamering
-Ideal + RingElement := Ideal + Number := ((I,r) -> I + ideal r) @@ tosamering
-RingElement + Ideal := Number + Ideal := ((r,I) -> ideal r + I) @@ tosamering
+Ideal * Ideal := Ideal => ((I,J) -> ideal flatten (generators I ** generators J)) @@ sameRing
+Ideal * Module := Module => ((I,M) -> subquotient (generators I ** generators M, relations M)) @@ sameRing
+Ideal + Ideal := Ideal => ((I,J) -> ideal (generators I | generators J)) @@ toSameRing
+Ideal + RingElement := Ideal + Number := ((I,r) -> I + ideal r) @@ toSameRing
+RingElement + Ideal := Number + Ideal := ((r,I) -> ideal r + I) @@ toSameRing
 Ideal _ ZZ := RingElement => (I,n) -> (generators I)_(0,n)
 Matrix % Ideal := Matrix => ((f,I) -> 
      if numRows f === 1
@@ -500,7 +498,7 @@ Matrix % Ideal := Matrix => ((f,I) ->
 	  R := ring I;
 	  S := R/I;
 	  lift(promote(f,S),R))
-     ) @@ samering
+     ) @@ sameRing
 Vector % Ideal := (v,I) -> new class v from {v#0%I}
 numgens Ideal := (I) -> numgens source generators I
 leadTerm Ideal := Ideal => (I) -> ideal leadTerm gb I
@@ -518,7 +516,7 @@ Ideal == Ring := (I,R) -> (
 Ring == Ideal := (R,I) -> I == R
 
 Ideal == Ideal := (I,J) -> (
-     samering(I,J);
+     sameRing(I,J);
      ( generators I == generators J or 
 	  -- if isHomogeneous I and isHomogeneous J  -- can be removed later
 	  -- then gb I == gb J 
@@ -575,6 +573,28 @@ Ideal ^ Array := (I, e) -> (
    -- apply the ring homomorphism and create the new ideal
    ideal phi generators I
 )
+
+-----------------------------------------------------------------------------
+-- kernel and homology
+-----------------------------------------------------------------------------
+
+kernel = method(Options => {
+	DegreeLimit  => {},
+	Strategy     => {},
+	SubringLimit => infinity, -- stop after finding enough elements of a subring
+    })
+kernel Matrix := Module => opts -> g -> g.cache.kernel ??= if g == 0 then source g else tryHooks(
+    (kernel, Matrix), (opts, g), (opts, g) -> (
+	-- this is the default algorithm
+	-- compare with homology below
+	N := source g;
+	P := target g;
+	g = matrix g;
+	if P.?generators then g = P.generators * g;
+	h := modulo(g, if P.?relations then P.relations);
+	if N.?generators then h = N.generators * h;
+	subquotient(h, if N.?relations then N.relations)))
+kernel RingElement := Module => opts -> f -> kernel(matrix {{f}}, opts)
 
 homology(Matrix,Matrix) := Module => opts -> (g,f) -> (
      if g == 0 then cokernel f

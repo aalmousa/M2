@@ -86,12 +86,12 @@ cayley(Polyhedron,Polyhedron,Polyhedron,ZZ):=(P1,P2,P3,k)->(
 cayley(Matrix,Matrix,Matrix,ZZ):=(M1,M2,M3,k)->(
     cayley({M1,M2,M3},k));   
    
---  INPUT : A list of Polyhedras or Matrices
+--  INPUT : A list of Polyhedra or Matrices
 -- OUTPUT : Polyhedron - The Cayley sum with height 1 of the elements in the list
 cayley(List):=(Plist)->(
     cayley(Plist,1));
 
---  INPUT : A list of Polyhedras or Matrices and an integer k
+--  INPUT : A list of Polyhedra or Matrices and an integer k
 -- OUTPUT : Polyhedron - The Cayley sum with height k of the elements in the list
 cayley(List,ZZ):=(Plist,k)->(
     if all(Plist,p -> (class p === Matrix)) then Plist=apply(Plist,convexHull);
@@ -211,7 +211,7 @@ toricBlowUp(Polyhedron,Polyhedron,ZZ) := (P,F,k) -> (
             and contains(e,(facesAsPolyhedra((dim F),F))_0)
         ));
     pt := k * matrix{(vertices Edges_i)_0+(vertices Edges_i)_1-2*(vertices F)_0}*(1/(#latticePoints(Edges_i)-1))+matrix((vertices F)_0);
-    return intersection(A||E,b||(E*pt)));
+    polyhedronFromHData(A||E,b||(E*pt)));
 
 
 
@@ -652,7 +652,7 @@ epsilonBounds(Polyhedron,ZZ):=(P,n)->(
 		intInP:=unique(intsect_pos);
 		if (#intInP==2) then(
 		    fVec:=intInP_0-intInP_1;
-		    fv:=gcd(apply(flatten entries(fVec),x->promote(x,QQ)));
+		    fv:=gcd(apply(flatten entries(fVec),x->lift(x,QQ)));
 		    Fvs=append(Fvs,fv);
 		    );
       	    	);
@@ -685,9 +685,9 @@ iskCayleykEdges(Polyhedron):=P->(
 	 if length(L)==2 then(
 	     k:=(L_1-L_0)/gcd(flatten entries(A^{i}));
 	     if k==minLen then(
-		 H0:=intersection(A^{i}||-A^{i},matrix{{L_0},{-L_0}});
+		 H0:=polyhedronFromHData(A^{i}||-A^{i},matrix{{L_0},{-L_0}});
 		 P0=intersection(P,H0);
-		 H1:=intersection(A^{i}||-A^{i},matrix{{L_1},{-L_1}});
+		 H1:=polyhedronFromHData(A^{i}||-A^{i},matrix{{L_1},{-L_1}});
 		 P1=intersection(P,H1);
 		 boolean=false;
 	     );

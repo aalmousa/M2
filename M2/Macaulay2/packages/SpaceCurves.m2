@@ -14,6 +14,7 @@ newPackage(
 	      },
         Headline => "space curves",
 	Keywords => {"Examples and Random Objects"},
+        PackageImports => {"Complexes"},
         DebuggingMode => false,
 	Certification => {
 	     "journal name" => "The Journal of Software for Algebra and Geometry",
@@ -23,7 +24,6 @@ newPackage(
 	     "published article URI" => "https://msp.org/jsag/2018/8-1/p04.xhtml",
 	     "published article DOI" => "10.2140/jsag.2018.8.31",
 	     "published code URI" => "https://msp.org/jsag/2018/8-1/jsag-v8-n1-x04-SpaceCurves.m2",
-	     "repository code URI" => "https://github.com/Macaulay2/M2/blob/master/M2/Macaulay2/packages/SpaceCurves.m2",
 	     "release at publication" => "7853d911a8a484766a7828dc8e17aed701ce9fd6",	    -- git commit number in hex
 	     "version at publication" => "1.0",
 	     "volume number" => "8",
@@ -379,7 +379,7 @@ minimalCurveBetti Module := M -> (
 	    continue    
 	)    		
     );
-    betti chainComplex {random(R^1,(target (Q.dd_3)^cols)**R^{-h}),(Q.dd_3)^cols**R^{-h},
+    betti complex {random(R^1,(target (Q.dd_3)^cols)**R^{-h}),(Q.dd_3)^cols**R^{-h},
 	 Q.dd_4**R^{-h}, Q.dd_5**R^{-h}}
 )
 minimalCurveBetti Ideal := I -> minimalCurveBetti raoModule I
@@ -566,7 +566,7 @@ curve (ZZ,ZZ,Ring) := (d,g,R) -> (
     --generates a random curve of degree d and genus g in a given ring
     if 2*g == (d-1)*(d-2) then return ideal(random(1,R),random(d,R));
     L := smoothDivisors(d,g,R);
-    if L != {}  then return curve first random L
+    if L != {}  then return curve randomElement L
     else print "No smooth curve with this degree and genus exists!";   
 )
 curve (ZZ,ZZ) := (d,g) -> (

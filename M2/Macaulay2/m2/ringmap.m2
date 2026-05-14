@@ -53,6 +53,8 @@ Ring#id = R -> map(R, R, vars R)
 
 map(RingFamily, Thing, Thing) := RingMap => opts -> (R, S, m) -> map(default R, S, m, opts)
 map(Thing, RingFamily, Thing) := RingMap => opts -> (R, S, m) -> map(R, default S, m, opts)
+map(RingFamily, Thing) := RingMap => opts -> (R, S) -> map(default R, S, opts)
+map(Thing, RingFamily) := RingMap => opts -> (R, S) -> map(R, default S, opts)
 
 map(Ring, Ring)          := RingMap => opts -> (R, S   ) -> map(R, S, matrix(R, {{}}), opts)
 map(Ring, Ring, RingMap) := RingMap => opts -> (R, S, f) -> map(R, S, matrix f,        opts)
@@ -211,9 +213,7 @@ RingMap Module := Module => (f, M) -> (
 -- misc
 tensor(RingMap, Module) := Module => {} >> opts -> (f, M) -> (
     if source f =!= ring M then error "expected module over source ring";
-    subquotient(f ambient M,
-	if M.?generators then f M.generators,
-	if M.?relations  then f M.relations))
+    cokernel f presentation M);
 RingMap ** Module := Module => (f, M) -> tensor(f, M)
 
 tensor(RingMap, Matrix) := Matrix => {} >> opts -> (f, m) -> (
@@ -228,7 +228,6 @@ RingMap \ VisibleList := VisibleList => (f,v) -> apply(v,x -> f x)
 -- kernel
 -----------------------------------------------------------------------------
 
-kernel = method(Options => { SubringLimit => infinity })
 kernel RingMap := Ideal => opts -> (cacheValue (symbol kernel => opts)) (f -> (
     (F, R) := (target f, source f);
     if 0_F == 1_F then return ideal 1_R;
@@ -320,7 +319,7 @@ algorithms#(kernel, RingMap) = new MutableHashTable from {
 	       assert (not chh or G#?"rawGBSetHilbertFunction log"); -- ensure the Hilbert function hint was actually used in gb.m2
 	       ideal mapback selectInSubring(1,generators G)
 	),
-
+    ZZ => (opts, f) -> if source f === ZZ then ideal char target f,
     Default => (opts, f) -> (
 	(F, R) := (target f, source f);
 	       numsame := 0;
@@ -345,7 +344,7 @@ algorithms#(kernel, RingMap) = new MutableHashTable from {
     }
 
 -- Installing hooks for kernel RingMap
-scan({Default, "AffineRing", FractionField}, strategy ->
+scan({Default, ZZ, "AffineRing", FractionField}, strategy ->
     addHook(key := (kernel, RingMap), algorithms#key#strategy, Strategy => strategy))
 
 -----------------------------------------------------------------------------

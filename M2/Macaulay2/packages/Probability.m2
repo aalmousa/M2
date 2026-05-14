@@ -1,5 +1,5 @@
 -- Probability package for Macaulay2
--- Copyright (C) 2022-2024 Doug Torrance
+-- Copyright (C) 2022-2026 Doug Torrance
 
 -- This program is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License
@@ -12,14 +12,12 @@
 -- GNU General Public License for more details.
 
 -- You should have received a copy of the GNU General Public License
--- along with this program; if not, write to the Free Software
--- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
--- 02110-1301, USA.
+-- along with this program; if not, see <https://www.gnu.org/licenses/>.
 
 newPackage("Probability",
     Headline => "basic probability functions",
-    Version => "0.5",
-    Date => "September 13, 2024",
+    Version => "0.7",
+    Date => "January 13, 2026",
     Authors => {{
 	    Name     => "Doug Torrance",
 	    Email    => "dtorrance@piedmont.edu",
@@ -33,7 +31,6 @@ newPackage("Probability",
 	"published article URI" => "https://msp.org/jsag/2024/14-1/p07.xhtml",
 	"published article DOI" => "10.2140/jsag.2024.14.51",
 	"published code URI" => "https://msp.org/jsag/2024/14-1/jsag-v14-n1-x07-Probability.m2",
-	"repository code URI" => "https://github.com/Macaulay2/M2/blob/master/M2/Macaulay2/packages/Probability.m2",
 	"release at publication" => "fe3f536ed3c90d114452e31a24fc3a935a3b9ca3",
 	"version at publication" => "0.3",
 	"volume number" => "14",
@@ -46,6 +43,12 @@ newPackage("Probability",
 ---------------
 
 -*
+
+0.7 (2026-01-13, M2 1.26.05)
+* use new syntactic sugar for installing nullary methods
+
+0.6 (2025-11-10, M2 1.25.11)
+* update GPL 2 text (FSF no longer has a physical address)
 
 0.5 (2024-09-13, M2 1.24.11)
 * add JSAG info
@@ -328,7 +331,7 @@ uniformDistribution(Number, Number) := (a, b) -> (
 	QuantileFunction => p -> a + p * (b - a),
 	Support => (a, b),
 	Description => "U" | toString (a, b)))
-installMethod(uniformDistribution, () -> uniformDistribution(0, 1))
+uniformDistribution() := () -> uniformDistribution(0, 1)
 
 exponentialDistribution = method()
 exponentialDistribution Number := lambda -> (
@@ -357,7 +360,7 @@ normalDistribution(Number, Number) := (mu, sigma) -> (
 	Description => "N" | toString (mu, sigma)))
 
 -- standard normal distribution
-installMethod(normalDistribution, () -> normalDistribution(0, 1))
+normalDistribution() := () -> normalDistribution(0, 1)
 
 gammaDistribution = method()
 gammaDistribution(Number, Number) := (alpha, lambda) -> (

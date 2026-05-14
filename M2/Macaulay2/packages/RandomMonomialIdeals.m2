@@ -49,7 +49,7 @@ newPackage(
 	},
     	Headline => "Erdos-Renyi-type random monomial ideals",
 	Keywords => {"Examples and Random Objects"},
-     	PackageImports => { "Depth", "BoijSoederberg", "Serialization" },
+     	PackageImports => { "Complexes", "Depth", "BoijSoederberg", "Serialization" },
     	DebuggingMode => false,
 	Certification => {
 	     "journal name" => "The Journal of Software for Algebra and Geometry",
@@ -59,7 +59,6 @@ newPackage(
 	     "published article URI" => "https://msp.org/jsag/2019/9-1/p08.xhtml",
 	     "published article DOI" => "10.2140/jsag.2019.9.65",
 	     "published code URI" => "https://msp.org/jsag/2019/9-1/jsag-v9-n1-x08-RandomMonomialIdeals.m2",
-	     "repository code URI" => "https://github.com/Macaulay2/M2/blob/master/M2/Macaulay2/packages/RandomMonomialIdeals.m2",
 	     "release at publication" => "902570b14480e7590b6960b1352331acce3ef817",	    -- git commit number in hex
 	     "version at publication" => "1.0",
 	     "volume number" => "9",
@@ -218,7 +217,7 @@ writeSample (Sample, String) := (s, dirname) -> (
     if fileExists dirname then (
 	stderr << "warning: directory or file with this name already exists." << endl;
         if not isDirectory dirname then (
-	    stderr << "warning: overwrting file." << endl;
+	    stderr << "warning: overwriting file." << endl;
 	    removeFile dirname;
 	    mkdir dirname;
 	    );
@@ -356,7 +355,8 @@ randomMonomialSet (PolynomialRing,ZZ,ZZ) := List => o -> (R,D,M) -> (
     if M<0 then stderr << "warning: M expected to be a nonnegative integer" << endl;
     if o.Strategy === "Minimal" then error "Minimal not implemented for fixed size ER model";
     allMonomials := flatten flatten apply(toList(1..D),d->entries basis(d,R));
-    C := take(random(allMonomials), M);
+    print(#allMonomials);
+    C := shuffle(allMonomials, min(M, #allMonomials));
     if C==={} then {0_R} else C
 )
 
@@ -377,12 +377,13 @@ randomMonomialSet (PolynomialRing,ZZ,List) := List => o -> (R,D,pOrM) -> (
         if o.Strategy === "Minimal" then (
             currentRingM := R;
             apply(D, d->(
-                chosen := take(random(flatten entries basis(d+1, currentRingM)), pOrM_d);
+		mons := flatten entries basis(d+1, currentRingM);
+                chosen := shuffle(mons, min(pOrM_d, #mons));
                 B = flatten append(B, chosen/(i->sub(i, R)));
                 currentRingM = currentRingM/promote(ideal(chosen), currentRingM)
 		)
 	    )
-	) else B = flatten apply(toList(1..D), d->take(random(flatten entries basis(d,R)), pOrM_(d-1)));
+	) else B = flatten apply(toList(1..D), d->shuffle(flatten entries basis(d,R), pOrM_(d-1)));
     ) else if all(pOrM,q->instance(q,RR)) then (
         if any(pOrM,q-> q<0.0 or 1.0<q) then error "pOrM expected to be a list of real numbers between 0.0 and 1.0";
         if o.Strategy === "Minimal" then (
@@ -1705,7 +1706,7 @@ doc ///
       using the function writeSample. 
       This shows how to retrieve that stored sample and have it loaded as an object of type Sample: 
     Example 
-      writeSample(sample(ER(2,3,0.1),5), "testDirectory")
+      writeSample(sample(ER(2,3,0.1),5), "testDirectory") -* no-capture-flag *-
       mySample = sample("testDirectory")
       peek mySample 
   SeeAlso
@@ -1847,7 +1848,7 @@ doc ///
       about the model used to generate the sample, and another text file contains the 
       information about the sample itself. 
     Example
-      writeSample(sample(ER(2,3,0.1),5), "testDirectory")
+      writeSample(sample(ER(2,3,0.1),5), "testDirectory") -* no-capture-flag *-
       mySample = sample("testDirectory")
       peek mySample 
   SeeAlso

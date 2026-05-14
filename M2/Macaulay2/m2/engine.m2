@@ -53,7 +53,7 @@ isSmall := i -> class i === ZZ and i < 2^15 and i > -2^15
 isCount := i -> class i === ZZ and i >= 0 and i < 2^15
 isListOfIntegers = x -> instance(x, List) and all(x,i -> class i === ZZ)
 isListOfListsOfIntegers = x -> instance(x, List) and all(x,isListOfIntegers)
-listZ = listZZ = v -> if isListOfIntegers(v = toList splice v) then v else error "expected a list of integers"
+listZZ = v -> if isListOfIntegers(v = toList splice v) then v else error "expected a list of integers"
 checkCount := i -> if not isCount i then error "expected a small positive integer"
 
 fixup1 := method(Dispatch => Thing)			    -- stage 1, everything except Tiny and Small
@@ -255,6 +255,7 @@ raw Number := x -> x_((class x).RawRing)
 raw InexactNumber := x -> x_((ring x).RawRing)
 Number _ RawRing := (n,R) -> rawFromNumber(R,n)
 RawRingElement _ RawRing := (x,R) -> rawPromote(R,x)
+raw Constant := raw @@ numeric
 
 RawRingElement == RawRingElement := (x,y) -> x === y
 
@@ -323,13 +324,23 @@ RawMatrix.synonym = "raw matrix"
 setAttribute(RawMutableMatrix,ReverseDictionary,symbol RawMutableMatrix)
 RawMutableMatrix.synonym = "raw mutable matrix"
 
+-- helper functions for negative indices
+adjustIndex = (i, n) -> if i < 0 then n + i else i
+adjustIndices = (I, n) -> apply(I, i -> adjustIndex(i, n))
+
 rawExtract = method()
 
 rawExtract(RawMatrix,ZZ,ZZ) := 
-rawExtract(RawMutableMatrix,ZZ,ZZ) := (m,r,c) -> rawMatrixEntry(m,r,c)
+rawExtract(RawMutableMatrix,ZZ,ZZ) := (m,r,c) -> (
+    r = adjustIndex(r, rawNumberOfRows m);
+    c = adjustIndex(c, rawNumberOfColumns m);
+    rawMatrixEntry(m, r, c))
 
 rawExtract(RawMatrix,Sequence,Sequence) := 
-rawExtract(RawMutableMatrix,Sequence,Sequence) := (m,r,c) -> rawSubmatrix(m,spliceInside r,spliceInside c)
+rawExtract(RawMutableMatrix,Sequence,Sequence) := (m,r,c) -> (
+    r = adjustIndices(spliceInside r, rawNumberOfRows m);
+    c = adjustIndices(spliceInside c, rawNumberOfColumns m);
+    rawSubmatrix(m,spliceInside r,spliceInside c))
 
 RawMatrix _ Sequence := 
 RawMutableMatrix _ Sequence := (m,rc) -> ((r,c) -> rawExtract(m,r,c)) rc
@@ -343,7 +354,8 @@ target RawMatrix := o -> rawTarget o
 source RawMatrix := o -> rawSource o
 transposeSequence := t -> pack(#t, mingle t)
 isHomogeneous RawMatrix := rawIsHomogeneous
-entries RawMutableMatrix := entries RawMatrix := m -> table(rawNumberOfRows m,rawNumberOfColumns m,(i,j)->rawMatrixEntry(m,i,j))
+entries RawMutableMatrix :=
+entries RawMatrix := rawMatrixEntries
 
 ZZ * RawMatrix := (n,f) -> (
      R := rawRing rawTarget f;
@@ -364,7 +376,13 @@ new RawMatrix from RawRingElement := (RawMatrix,f) -> rawMatrix1(rawFreeModule(r
 new RawMatrix from RawMutableMatrix := rawMatrix
 new RawMutableMatrix from RawMatrix := rawMutableMatrix
 
-RawMutableMatrix _ Sequence = (M,ij,val) -> ((i,j) -> (rawSetMatrixEntry(M,i,j,val); val)) ij
+RawMutableMatrix _ Sequence = (M,ij,val) -> ((i,j) -> (
+	rawSetMatrixEntry(
+	    M,
+	    adjustIndex(i, rawNumberOfRows M),
+	    adjustIndex(j, rawNumberOfColumns M),
+	    val);
+	val)) ij
 
 degree RawMatrix := rawMultiDegree
 degrees RawMatrix :=f -> {rawMultiDegree rawTarget f,rawMultiDegree rawSource f}

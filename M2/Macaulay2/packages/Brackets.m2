@@ -5,7 +5,7 @@ newPackage(
           Headline => "Brackets, Grassmann-Cayley Algebra, and Projective Geometry",
           Authors => {
 	      { Name => "Dalton Bidleman", Email => "deb0036@auburn.edu", HomePage => ""},
-	      { Name => "Tim Duff", Email => "tduff@missouri.edu", HomePage => "https://timduff35.github.io/timduff35/"},
+	      { Name => "Timothy Duff", Email => "tduff@missouri.edu", HomePage => "https://timduff35.github.io/timduff35/"},
 	      { Name => "Jack Kendrick", Email => "jackgk@uw.edu", HomePage => ""},
 	      { Name => "Michael Zeng", Email => "zengrf@uw.edu", HomePage => ""}		      
 	      },
@@ -53,7 +53,7 @@ bracketRing (VisibleList, ZZ) := o -> (vectorSymbols, d) -> (
     x := symbol x;
     R := o.CoefficientRing[x_(1,1)..x_(n,d)];
     X := matrix for i from 1 to n list for j from 1 to d list x_(i,j);
-    nBrackets := rsort(sort \ subsets(vectorSymbols, d)); -- important for "Tableux order"
+    nBrackets := rsort(sort \ subsets(vectorSymbols, d)); -- important for "Tableaux order"
     bracketIndices := rsort(sort \ subsets(#vectorSymbols, d));
     minorsX := apply(bracketIndices, R -> det X^R);
     y := symbol y; 

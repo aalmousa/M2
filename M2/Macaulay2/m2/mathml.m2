@@ -10,7 +10,7 @@ moen := name -> concatenate("<mo>&",name,";</mo>")
 nest := (tag,s) -> concatenate("<",tag,">",s,"</",tag,">")
 mo   := s -> nest("mo",s)
 mrow := s -> nest("mrow",s)
-mtable := x -> concatenate(
+mtable = x -> concatenate(
      "<mtable columnalign=\"center\">", newline,
      apply(x, row -> ( "<mtr>", apply(row, e -> ("<mtd>",e,"</mtd>",newline)), "</mtr>", newline ) ),
      "</mtable>", newline )
@@ -86,6 +86,12 @@ mathML Minus := v -> concatenate( "<mrow><mo>-</mo>", mathML v#0, "</mrow>")
 mathML Divide := x -> concatenate("<mfrac>", mathML x#0, mathML x#1, "</mfrac>")
 mathML OneExpression := x -> "<mn>1</mn>"
 mathML ZeroExpression := x -> "<mn>0</mn>"
+mathML BinaryOperation := m -> (
+    x := mathML m#1;
+    y := mathML m#2;
+    if rightPrecedence m#1 < lprec m#0 then x = mathMLparen x;
+    if precedence m#2 <= rprec m#0 then y = mathMLparen y;
+    mrow(x | mo m#0 | y))
 mathML Sum := v -> (
      n := # v;
      if n === 0 then "<mn>0</mn>"
@@ -150,25 +156,19 @@ mathML Power := v -> (
 mathML ZZ := i -> concatenate("<mn>",toString i, "</mn>")
 mathML RR := i -> concatenate("<mn>",toString i, "</mn>")
 mathML QQ := i -> concatenate( "<mfrac>",mathML numerator i, mathML denominator i, "</mfrac>" )
+mathML RowExpression := x -> mrow concatenate apply(x, mathML)
 mathML Expression := x -> error("mathML conversion for expression class ", toString class x, " not implemented yet")
 
 mathML LITERAL := x -> concatenate x
 
 -- see texmacs source file HTMLsymbol.scm for these names:
-leftarrow := moen "larr"
+leftarrow = moen "larr"
 doublerightarrow := moen "rArr"
 leftbrace := mo "{"
 rightbrace := mo "}"
 
-mathML ChainComplex := C -> (
-     complete C;
-     s := sort spots C;
-     if #s === 0 then mathML "0"
-     else mtable transpose between({leftarrow,"",""}, toList apply(s#0 .. s#-1,i -> {mathML C_i,"",mathML i})))
 mathML MapExpression := x -> mrow {mathML x#0, leftarrow, mathML x#1}
 mathML Option := s -> concatenate("<mrow>",mathML s#0, doublerightarrow, mathML s#1, "</mrow>")
-mathML Type :=
-mathML ImmutableType := R -> if R.?mathML then R.mathML else mathML expression R
 mathML VirtualTally :=
 mathML HashTable := s -> if s.?mathML then s.mathML else concatenate( "<mrow>",mathML class s,leftbrace, mtable sort apply(pairs s, (k,v) -> {mathML k, doublerightarrow, mathML v}), rightbrace,"</mrow>", newline )
 mathML MutableHashTable := x -> if x.?mathML then x.mathML else (
@@ -184,9 +184,6 @@ mathML MutableMatrix :=
 mathML OptionTable :=
 mathML ProjectiveHilbertPolynomial :=
 mathML RingMap :=
-mathML ChainComplexMap :=
-mathML GradedModule :=
-mathML GradedModuleMap :=
 mathML GroebnerBasis :=
 mathML IndexedVariableTable :=
 mathML Package :=

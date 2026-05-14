@@ -24,7 +24,6 @@ newPackage (
 	"published article URI" => "https://msp.org/jsag/2010/2-1/p05.xhtml",
 	"published article DOI" => "10.2140/jsag.2010.2.20",
 	"published code URI" => "https://msp.org/jsag/2010/2-1/jsag-v2-n1-x05-code.zip",
-	"repository code URI" => "https://github.com/Macaulay2/M2/blob/master/M2/Macaulay2/packages/SimplicialDecomposability.m2",
 	"release at publication" => "d230ee4205bab933be32f3de7ae0ae0f52115c84",
 	"version at publication" => "1.0.5",
 	"volume number" => "2",
@@ -267,7 +266,7 @@ shellingOrder SimplicialComplex := opts -> S -> (
        if tmp != toList(0..#F-1) then error("shellingOrder: Option Permutation must be the same length as the number of facets and must be increasing consecutive integers.");
        F = F_(opts.Permutation);
    )
-   else if opts.Random then F = random F;
+   else if opts.Random then F = shuffle F;
 
    O := {};
    -- The pure case is easier, so separate it

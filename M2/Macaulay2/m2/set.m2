@@ -15,7 +15,7 @@ tally String      :=
 tally VisibleList := Tally => tally
 
 elements = method()
-elements Tally := x -> splice apply(pairs x, (k,v) -> v:k)
+elements Tally := toList Tally := x -> splice apply(pairs x, (k,v) -> v:k)
 
 toString VirtualTally := x -> concatenate( "new ", toString class x, " from {", demark(", ", sort apply(pairs x, (v,i) -> (toString v, " => ", toString i))), "}" )
 
@@ -83,13 +83,19 @@ product VirtualTally := (w) -> product(pairs w, (k,v) -> k^v)
 Set.synonym = "set"
 
 -- constructors, both compiled functions defined in d/sets.dd
-set VisibleList := Set => set
-new Set from List := Set => (X,x) -> set x
-set Set := identity
+set' = set
+set = method(TypicalValue => Set, Dispatch => Thing)
+set Set         := identity
+set HashTable   :=
+set VisibleList := Set => set'
+new Set from Set         := Set => (Set, S) -> set' S
+new Set from HashTable   :=
+new Set from VisibleList := Set => (Set, X) -> set' X
 
 -- set operations
 elements Set := List => keys
-installMethod(union, () -> set {})
+union()         := () -> set {}
+union Set       := identity
 union(Set, Set) := Set + Set := Set => (x,y) -> merge(x,y,(i,j)->i)
 
 -- Set ++ Set := Set => (x,y) -> applyKeys(x,i->(0,i)) + applyKeys(y,j->(1,j))
@@ -100,11 +106,12 @@ Set * Set := Set => (x,y) -> (
      then set select(keys x, k -> y#?k)
      else set select(keys y, k -> x#?k)
      )
+intersect Set       := Set => {} >> o -> identity
 intersect(Set, Set) := Set => {} >> o -> (x,y) -> x*y
 
 Set - Set := Set => (x,y) -> applyPairs(x, (i,v) -> if not y#?i then (i,v))
-List - Set := List => (x,y) -> select(x, i -> not y#?i)
-Set - List := Set => (x,y) -> x - set y
+VisibleList - Set := List => (x,y) -> select(x, i -> not y#?i)
+Set - VisibleList := Set => (x,y) -> x - set y
 
 --
 sum Set := s -> sum toList s

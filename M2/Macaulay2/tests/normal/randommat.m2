@@ -17,7 +17,8 @@ assert( f == matrix {{47*x-16*y, 21*x-42*y}, {-17*x-23*y, 16*x-34*y}})
 S = QQ[x,y]/(x^2,y^2)
 g = random(S^{2:0},S^{2:-1})
 toString g
-assert( g == matrix {{59/10*x+74/9*y, 39/10*x+34/9*y}, {11/3*x+42/5*y, 35/6*x+1/2*y}})
+assert( g == matrix {{10/3*x+7/4*y, 6/7*x+9/8*y}, {5/6*x+8*y, 3/4*x+8/7*y}})
+-- old version: assert( g == matrix {{x+5/6*y, 3/7*x+4/5*y}, {8*x+2/5*y, 3/4*x+1/6*y}} )
 
 -- check random isomorphisms are isomorphisms
 
@@ -33,3 +34,6 @@ assert isSurjective random(R^3,R^6,MaximalRank=>true)
 assert(random(ZZ^2, ZZ^2, MaximalRank => true) - id_(ZZ^2) != 0)
 assert(random(QQ^2, QQ^2, MaximalRank => true) - id_(QQ^2) != 0)
 assert(random(R^2,  R^2,  MaximalRank => true) - id_(R^2)  != 0)
+
+-- used to crash M2 (#2089)
+assert try random(ZZ^2, ZZ^2, Height => 0) then false else true

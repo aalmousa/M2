@@ -26,7 +26,6 @@ newPackage(
 	    -- "published article URI" => "",
 	    -- "published article DOI" => "",
 	    -- "published code URI" => "",
-	    -- "repository code URI" => "",
 	    -- "release at publication" => "",	    
 	    -- "version at publication" => "",
 	    -- "volume number" => "",
@@ -98,7 +97,7 @@ shiftn = (list3, n) ->(for i from 0 to (#list3-1) list ({list3#i#0-n, list3#i#1,
 tensorfqa = (list3, q, a, det1) ->(
     --list of divided multidegrees
     dividedp := compositions(2, a);
-    --list of frobenius multidegrees of D^aU
+    --list of Frobenius multidegrees of D^aU
     fqa := for i from 0 to a list ({dividedp#i#0*q, dividedp#i#1*q});
     --this will be the new list to be returned
     newlist := flatten for i from 0 to (#fqa -1) list(
@@ -369,7 +368,7 @@ gradedFdr = (S, d, r) ->(
 
 --auxiliary Laurent polynomial ring
 --keeps track of shifts and multiplicities for standard generators
---of the Han-Monsky reprezentation ring
+--of the Han-Monsky representation ring
 q := local q;
 HMRing = ZZ[q,Inverses => true, MonomialOrder=>Lex]
 --if HMRing is a terrible name, we should replace it, ideas?
@@ -849,7 +848,7 @@ base10p = (p, num) ->(
 --Input: q = p^e a power of an integer prime or q = 0, positive integer d,
 --and R=n or R = ZZ[x_1..x_n] either a positive integer or a polynomial ring
 --Output: If R is a polynomial ring, then the function outputs the q-truncated symmetric polynomial
---where the q=0 is intrepreted to be not truncated
+--where the q=0 is interpreted to be not truncated
 --If R=n an integer then, the output is the number of monomials in this polynomial
 --(i.e. the sum of the coefficients of the monomial terms in this polynomial)
 hqd = (q, d, R) ->(
@@ -885,7 +884,7 @@ hqd = (q, d, R) ->(
 --Input: q=p^e a power of a prime integer p or q = 0, positive integers a,b,
 --and R=n or R = ZZ[x_1..x_n] either a positive integer or a polynomial ring
 --Output: If R is a polynomial ring, then the function outputs the q-truncated Schur polynomial for (a,b)
---where the q=0 is intrepreted to be not truncated
+--where the q=0 is interpreted to be not truncated
 --If R=n an integer then, the output is the sum of the coefficients of the monomial terms in this polynomial
 
 sqab = (q,a, b, R) ->(hqd(q, a, R)*hqd(q, b, R)-hqd(q, a+1, R)*hqd(q, b-1, R))

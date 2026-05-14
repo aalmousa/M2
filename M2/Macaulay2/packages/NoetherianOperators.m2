@@ -29,7 +29,6 @@ newPackage(
 	 "published article URI" => "https://msp.org/jsag/2022/12-1/p05.xhtml",
 	 "published article DOI" => "10.2140/jsag.2022.12.33",
 	 "published code URI" => "https://msp.org/jsag/2022/12-1/jsag-v12-n1-x05-NoetherianOperators.m2",
-	 "repository code URI" => "https://github.com/Macaulay2/M2/blob/master/M2/Macaulay2/packages/NoetherianOperators.m2",
 	 "release at publication" => "28faaabb38111c186c23ef6e6a3d487b0823390e",	    -- git commit number in hex
 	 "version at publication" => "2.2.1",
 	 "volume number" => "12",
@@ -314,15 +313,15 @@ socles MonomialIdeal := I -> mingens((I : ideal gens ring I)/I)
 socles Matrix := M -> socles monomialIdeal M
 sCorners = socles
 
-hilbertFunction DualSpace := L -> (
+hilbertFunction DualSpace := opts -> L -> (
     if not L.Space.Reduced then L = reduceSpace L;
     tally(flatten entries gens L / first @@ degree)
     )
-hilbertFunction(List,DualSpace) := (LL,L) -> (
+hilbertFunction(List,DualSpace) := opts -> (LL,L) -> (
     h := hilbertFunction L;
     apply(LL, d->(if h#?d then h#d else 0))
     )
-hilbertFunction(ZZ,DualSpace) := (d,L) -> first hilbertFunction({d},L)
+hilbertFunction(ZZ,DualSpace) := opts -> (d,L) -> first hilbertFunction({d},L)
 
 localHilbertRegularity = method(TypicalValue => ZZ, Options=>{Tolerance => null})
 localHilbertRegularity(AbstractPoint, Ideal) := o -> (p,I) -> localHilbertRegularity(p,gens I,o)

@@ -246,7 +246,7 @@ BACKWARD  := tag -> if PREV#?tag then BACKWARD0 PREV#tag else if UP#?tag then UP
 topNodeButton  := (htmlDirectory, topFileName)   -> HREF {htmlDirectory | topFileName,   "top" };
 indexButton    := (htmlDirectory, indexFileName) -> HREF {htmlDirectory | indexFileName, "index"};
 tocButton      := (htmlDirectory, tocFileName)   -> HREF {htmlDirectory | tocFileName,   "toc"};
-pkgButton      := TO2 {"packages provided with Macaulay2", "Packages"};
+pkgButton      := TO2 {"Macaulay2Doc :: packages provided with Macaulay2", "Packages"};
 homeButton     := HREF {"https://macaulay2.com/", "Macaulay2"};
 searchBox      := LITERAL ///<form method="get" action="https://www.google.com/search">
   <input placeholder="Search" type="text" name="q" value="">
@@ -506,8 +506,6 @@ reproduciblePaths = outstr -> (
 	     outstr = replace(prefixdir | Layout#2#key,
 		 finalPrefix | Layout#1#key, outstr));
 	 outstr = replace(prefixdir, finalPrefix, outstr);
-	 -- usr-build/bin is in PATH during build
-	 outstr = replace(builddir | "usr-build/", finalPrefix, outstr);
 	 -- home directory
 	 outstr = replace(homedir, "/home/m2user", outstr);
 	 );
@@ -626,9 +624,7 @@ checkForWarnings := pkg -> (
 
 checkForErrors := pkg -> (
     if 0 < numDocumentationErrors then error("installPackage: ", toString numDocumentationErrors,
-	" error(s) occurred in processing documentation for package ", toString pkg);
-    if 0 < numExampleErrors then error("installPackage: ", toString numExampleErrors,
-	" error(s) occurred in running examples for package ", toString pkg))
+	" error(s) occurred in processing documentation for package ", toString pkg))
 
 -----------------------------------------------------------------------------
 -- installPackage
@@ -723,7 +719,7 @@ installPackage Package := opts -> pkg -> (
 	    verboseLog("copying auxiliary source files from ", auxiliaryFilesDirectory);
 	    makeDirectory(installPrefix | srcDirectory);
 	    copyDirectory(auxiliaryFilesDirectory, installPrefix | srcDirectory,
-		Exclude    => {"^CVS$", "^\\.svn$", "Makefile"},
+		Exclude    => {"^CVS$", "^\\.svn$", "Makefile", "^\\.gitignore$"},
 		UpdateOnly => true,
 		Verbose    => opts.Verbose or debugLevel > 0))
 	else if pkgopts.AuxiliaryFiles
@@ -783,8 +779,9 @@ installPackage Package := opts -> pkg -> (
 	if 0 < numExampleErrors then verboseLog stack apply(readDirectory exampleOutputDir,
 	    file -> if match("\\.errors$", file) then stack {
 		file, concatenate(width file : "="), getErrors(exampleOutputDir | file)});
-
-	if not opts.IgnoreExampleErrors then checkForErrors pkg;
+	if not opts.IgnoreExampleErrors and  0 < numExampleErrors
+	then error("installPackage: ", numExampleErrors,
+	    " error(s) occurred in running examples for package ", pkg);
 
 	-- if no examples were generated, then remove the directory
 	if length readDirectory exampleOutputDir == 2 then removeDirectory exampleOutputDir;
@@ -884,7 +881,7 @@ removeFiles = p -> scan(reverse findFiles p, fn -> if fileExists fn or readlink 
 uninstallPackage = method(Options => { InstallPrefix => applicationDirectory() | "local/" })
 uninstallPackage Package := opts -> pkg -> uninstallPackage(toString pkg, opts)
 uninstallPackage String  := opts -> pkg -> (
-    checkPackageName pkg;
+    checkPackageName(pkg, false);
     installPrefix := minimizeFilename opts.InstallPrefix;
     apply(findFiles apply({1, 2},
 	    i -> apply(flatten {
