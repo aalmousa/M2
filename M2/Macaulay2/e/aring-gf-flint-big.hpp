@@ -8,17 +8,21 @@
 // The following needs to be included before any flint files are included.
 #include <M2/gc-include.h>
 
+// includes gmp.h, which is required for FLINT functions that use GMP
+#include <M2/math-include.h>
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-#include <flint/fq_nmod.h>
-#include <flint/flint.h>
+#include <flint/flint.h>       // for flint_free, flint_rand_t, fmpz_t
+#include <flint/fmpz.h>        // for fmpz_clear_readonly, fmpz_init_set_...
+#include <flint/fq_nmod.h>     // for fq_nmod_init2, fq_nmod_clear, fq_nm...
+#include <flint/nmod_poly.h>   // for nmod_poly_degree, nmod_poly_get_coe...
 #pragma GCC diagnostic pop
 
 #include "aring.hpp"
 #include "buffer.hpp"
 #include "ringelem.hpp"
 #include "exceptions.hpp" // for exc::division_by_zero_error
-#include <iostream>
 
 class PolynomialRing;
 class RingElement;
@@ -222,7 +226,13 @@ class ARingGFFlintBig : public RingInterface
     return true;
   }
 
-  bool set_from_BigReal(ElementType& result, gmp_RR a) const { return false; }
+  bool set_from_BigReal(ElementType& result, gmp_RR a) const
+  {
+    (void) result;
+    (void) a;
+    return false;
+  }
+
   void negate(ElementType& result, const ElementType& a) const
   {
     fq_nmod_neg(&result, &a, mContext);

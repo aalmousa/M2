@@ -17,7 +17,8 @@ makeDirectory String := name -> (			    -- make the whole path, too
      name = minimizeFilename name;
      parts := separate("/", name);
      if last parts === "" then parts = drop(parts,-1);
-     makeDir fold((a,b) -> ( makeDir a; a|"/"|b ), parts))
+     makeDir fold((a,b) -> ( makeDir a; a|"/"|b ), parts);
+     name)
 
 copyFile = method(Options => new OptionTable from { Verbose => false, UpdateOnly => false })
 copyFile(String,String) := opts -> (src,tar) -> (
@@ -57,9 +58,10 @@ moveFile String := opts -> src -> if fileExists src or readlink src =!= null the
 	  return bak))
 
 baseFilename = fn -> (
-     fn = separate("/",fn);
-     while #fn > 0 and fn#-1 === "" do fn = drop(fn,-1);
-     last fn)
+    m := regex("([^/]+)/*$", fn);
+    if m =!= null then substring(m#1, fn)
+    else if #fn > 0 then "/"
+    else fn)
 
 findFiles = method(Options => new OptionTable from { Exclude => {}, FollowLinks => false })
 findFiles String := opts -> name -> (
@@ -391,19 +393,19 @@ dotemacsFix0 = ///
 (load "M2-init")
 
 ;; this version will not give an error if M2-init.el is not found:
-;(load "M2-init" t)
+;; (load "M2-init" t)
 
-; You may comment out the following line with an initial semicolon if you 
-; want to use your f12 key for something else.  However, this action
-; will be undone the next time you run setup() or setupEmacs().
+;; You may comment out the following line with an initial semicolon if you 
+;; want to use your f12 key for something else.  However, this action
+;; will be undone the next time you run setup() or setupEmacs().
 (global-set-key [ f12 ] 'M2)
 
-; Prevent Emacs from inserting a superfluous "See" or "see" in front
-; of the hyperlinks when reading documentation in Info mode.
+;; Prevent Emacs from inserting a superfluous "See" or "see" in front
+;; of the hyperlinks when reading documentation in Info mode.
 (setq Info-hide-note-references 'hide)
 ///
 
-emacsHeader := ";-*-emacs-lisp-*-\n"
+emacsHeader := ";; -*-emacs-lisp-*-\n"
 shHeader := "#-*-sh-*-\n"
 
 bashtempl := ///
@@ -482,8 +484,8 @@ prelim := () -> (
      promptUser = true;
      if prefixDirectory === null then error "can't determine Macaulay 2 prefix (prefixDirectory not set)";
      )
-installMethod(setupEmacs, () -> ( prelim(); mungeEmacs(); ))
-installMethod(setup, () -> (
+setupEmacs() := () -> ( prelim(); mungeEmacs(); )
+setup() := () -> (
      prelim();
      dotprofileFix = concatenate(shHeader, apply(shellfixes, (var,dir,rest) -> fix(var,dir,rest,bashtempl)));
      dotloginFix = concatenate(shHeader,apply(shellfixes, (var,dir,rest) -> fix(var,dir,rest,cshtempl)));
@@ -503,7 +505,7 @@ installMethod(setup, () -> (
      -- csh and tcsh:
      mungeFile("~/.login",startToken,endToken,M2loginRead) or
      -- emacs:
-     mungeEmacs(); ))
+     mungeEmacs(); )
 
 scanLines = method()
 ifbrk := x -> if x =!= null then break x

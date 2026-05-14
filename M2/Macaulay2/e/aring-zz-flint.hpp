@@ -16,7 +16,8 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-#include <flint/arith.h>
+#include <flint/flint.h>  // for flint_rand_t, fmpz, fmpz_t
+#include <flint/fmpz.h>   // for fmpz_set_si, fmpz_pow_ui, fmpz_set_mpz
 #pragma GCC diagnostic pop
 
 namespace M2 {
@@ -110,8 +111,19 @@ void set_from_mpz(ElementType& result, mpz_srcptr a) const
     return false;
   }
 
-  bool set_from_BigReal(ElementType& result, gmp_RR a) const { return false; }
-  void set_var(ElementType& result, int v) const { fmpz_set_si(&result, 1); }
+  bool set_from_BigReal(ElementType& result, gmp_RR a) const
+  {
+    (void) result;
+    (void) a;
+    return false;
+  }
+
+  void set_var(ElementType& result, int v) const
+  {
+    (void) v;
+    fmpz_set_si(&result, 1);
+  }
+
   /** @} */
 
   /** @name arithmetic
@@ -242,11 +254,17 @@ void set_from_mpz(ElementType& result, mpz_srcptr a) const
 
   bool promote(const Ring* Rf, const ring_elem f, ElementType& result) const
   {
+    (void) Rf;
+    (void) f;
+    (void) result;
     return false;
   }
 
   bool lift(const Ring* Rg, const ElementType& f, ring_elem& result) const
   {
+    (void) Rg;
+    (void) f;
+    (void) result;
     return false;
   }
 

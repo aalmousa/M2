@@ -13,7 +13,7 @@ newPackage(
 --=========================================================================--
 
 -- This package is based on
--- [BG1] Bermejo, Gimenez "Saturation and Castelnuovo-mumford Regularity", 
+-- [BG1] Bermejo, Gimenez "Saturation and Castelnuovo-Mumford Regularity", 
 --         Journal of Algebra 303/2006
 -- [BG2] Bermejo, Gimenez "Computing the Castelnuovo-Mumford Regularity of some 
 --         subschemes of P^n using quotients of monomial ideals",
@@ -102,14 +102,14 @@ isNested = (I,d) -> (
 
 satMon = (I,X)-> (
      m := flatten entries mingens I;
-     lamda := apply(entries transpose matrix flatten apply(m,exponents),max);
+     lambda := apply(entries transpose matrix flatten apply(m,exponents),max);
      l := {};
-     for i to #X -1 do l = l|{X_i^(lamda_i+1)};
+     for i to #X -1 do l = l|{X_i^(lambda_i+1)};
      gensIstar := flatten entries mingens (monomialIdeal l:monomialIdeal I);
      gensallvars :={};
      for i to #gensIstar-1 do if support gensIstar_i == X then gensallvars = gensallvars | {gensIstar_i}; --gensallvars contains the minimal gens of I that contain all variables
      if gensallvars == {} then return 0
-     else return sum lamda +1 - (min apply( gensallvars,degree))_0;
+     else return sum lambda +1 - (min apply( gensallvars,degree))_0;
      )
 
 
@@ -223,7 +223,7 @@ document {
      PARA {TT "Regularity", " is a package for computing the Castelnuovo-Mumford regularity
      of homogeneous ideals in a polynomial ring without having to compute a minimal 
      free resolution of the homogeneous ideal"},
-     PARA {"This package is based on two articles by Bermejo and Gimenez: ", TT"Saturation and Castelnuovo-mumford Regularity", ", Journal of Algebra 303/2006
+     PARA {"This package is based on two articles by Bermejo and Gimenez: ", TT"Saturation and Castelnuovo-Mumford Regularity", ", Journal of Algebra 303/2006
      and ", TT"Computing the Castelnuovo-Mumford Regularity of some subschemes of P^n using quotients of monomial ideals", ", Journal of Pure and Applied Algebra 164/2001."}  
 }
 
@@ -236,7 +236,7 @@ document {
 	  MonCurve => Boolean =>{ " parameter that should be set to true if I is the ideal of a monomial curve"}
 	  },     
      Outputs =>{ "the Castelnuovo-Mumford regularity of the given ideal, if it is homogeneous, and -1 otherwise"},
-     PARA {"This package is based on two articles by Bermejo and Gimenez: ", TT"Saturation and Castelnuovo-mumford Regularity", ", Journal of Algebra 303/2006
+     PARA {"This package is based on two articles by Bermejo and Gimenez: ", TT"Saturation and Castelnuovo-Mumford Regularity", ", Journal of Algebra 303/2006
      and ", TT"Computing the Castelnuovo-Mumford Regularity of some subschemes of P^n using quotients of monomial ideals", ", Journal of Pure and Applied Algebra 164/2001."}, 
      PARA {"computing the regularity of the defining ideal of the second Veronesean of P3"},
      EXAMPLE lines ///

@@ -6,11 +6,11 @@
 #include "types.h"
 #include "M2mem.h"
 #include "../c/compat.c"
-#include "debug.h"
+#include <interface/m2-mem.h>
 
 #include "../system/supervisorinterface.h"
 
-extern void M2_stack_trace();
+extern void profiler_stacktrace(int);
 
 void
 fatal(const char *s,...)   {
@@ -23,7 +23,7 @@ fatal(const char *s,...)   {
 #ifndef NDEBUG
      trap();
 #endif
-     M2_stack_trace();
+     profiler_stacktrace(0);
      exit(1);
      }
 
@@ -543,32 +543,32 @@ int system_unlink(M2_string name) {
 }
 
 int system_link(M2_string oldfilename,M2_string newfilename) {
-  char *old = M2_tocharstar(oldfilename);
-  char *new = M2_tocharstar(newfilename);
+  char *oldf = M2_tocharstar(oldfilename);
+  char *newf = M2_tocharstar(newfilename);
   int r = 
     #ifdef HAVE_LINK
-    link(old,new)
+    link(oldf, newf)
     #else
     -1
     #endif
     ;
-  freemem(old);
-  freemem(new);
+  freemem(oldf);
+  freemem(newf);
   return r;
 }
 
 int system_symlink(M2_string oldfilename,M2_string newfilename) {
-  char *old = M2_tocharstar(oldfilename);
-  char *new = M2_tocharstar(newfilename);
+  char *oldf = M2_tocharstar(oldfilename);
+  char *newf = M2_tocharstar(newfilename);
   int r = 
     #ifdef HAVE_SYMLINK
-    symlink(old,new)
+    symlink(oldf, newf)
     #else
     -1
     #endif
     ;
-  freemem(old);
-  freemem(new);
+  freemem(oldf);
+  freemem(newf);
   return r;
 }
 
@@ -854,7 +854,7 @@ int system_run(M2_string command){
      return r;
      }
 
-struct FUNCTION_CELL *pre_final_list, *final_list, *thread_prepare_list;
+struct FUNCTION_CELL *pre_final_list, *final_list;
 
 void system_atend(void (*func)()){
      struct FUNCTION_CELL *this_final = (struct FUNCTION_CELL *)getmem(sizeof(struct FUNCTION_CELL));

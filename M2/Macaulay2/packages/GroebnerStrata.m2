@@ -5,10 +5,12 @@ newPackage(
     	Date => "11 Nov 2021",
     	Authors => {
 	     {Name => "Mike Stillman", Email => "mike@math.cornell.edu", HomePage => "http://www.math.cornell.edu/~mike/"},
-	     {Name => "    Kristine Jones", Email => "kejones84@gmail.com"}},
-    	Headline => "a Macaulay2 package for computing Groebner loci in Hilbert schemes",
+	     {Name => "Kristine Jones", Email => "kejones84@gmail.com"}},
+	Headline => "computing Groebner loci in Hilbert schemes",
         PackageImports => {"Elimination"},
-    	DebuggingMode => false
+        PackageExports => {"Complexes"},
+    	DebuggingMode => false,
+	Keywords => {"Commutative Algebra"}
     	)
 
 export { 
@@ -342,7 +344,8 @@ nonminimalMaps(Ideal) := Sequence => (F) -> (
     A := coefficientRing T;
     T' := first flattenRing T;
     F' := sub(F, T');
-    C := res(F', Strategy => 5); -- must be over a finite field.
+    for f in F'_* do if leadCoefficient f != 1 then error "expected a putative monic Groebner basis";
+    C := res(F', Strategy => NonminimalWithGB); -- must be over a finite field.
     -- now let's place this into a new ring, with degree 0 coefficients.
     A'' := (coefficientRing A)[gens A, Degrees => {numgens A : 0}];
     T'' := A'' [gens T, Join => false];
@@ -353,7 +356,7 @@ nonminimalMaps(Ideal) := Sequence => (F) -> (
         f := sub(C.dd_i, T'');
         newMaps#(i-1) = map(source newMaps#(i-2),, f);
         );
-    CF := chainComplex toList newMaps;  -- this is one thing returned.
+    CF := complex toList newMaps;  -- this is one thing returned.
     -- the other is a list of degree zero maps, indexed via: (homological degree, internal degree).
     H := hashTable flatten for lev from 1 to length C list (
         set1 := set (degrees CF_lev)/first;
@@ -641,6 +644,7 @@ doc ///
       L = smallerMonomials M;
       mat = findWeightConstraints(M,L)
       needsPackage "Polyhedra"
+      needsPackage "FourTiTwo"
       dualCone posHull (-mat)
       rays oo
       posHull mat -- seems wrong?
@@ -948,7 +952,7 @@ doc ///
       $A$.  The lead terms of the generators of $I$ should be the
       initial ideal of $I$, and should be monic.
   Outputs
-    C:ChainComplex
+    C:Complex
       A complex over a polynomial ring where any parameters in the base ring are set to have degree 0,
       and the variables of the ring of $I$ are set to have degree one.
     H:HashTable

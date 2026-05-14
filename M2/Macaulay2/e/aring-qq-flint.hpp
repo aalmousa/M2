@@ -10,8 +10,9 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-//#include <flint/arith.h>
-#include <flint/fmpq.h>
+#include <flint/flint.h>  // for fmpq_denref, fmpq_numref, fmpq, flin...
+#include <flint/fmpq.h>   // for fmpq_init, fmpq_set, fmpq_set_mpq
+#include <flint/fmpz.h>   // for fmpz_get_ui, fmpz_cmp_si, fmpz_is_one
 #pragma GCC diagnostic pop
 
 #include "aring.hpp"
@@ -115,8 +116,19 @@ class ARingQQFlint : public SimpleARing<ARingQQFlint>
     return true;
   }
 
-  bool set_from_BigReal(ElementType& result, gmp_RR a) const { return false; }
-  void set_var(ElementType& result, int v) const { fmpq_set_si(&result, 1, 1); }
+  bool set_from_BigReal(ElementType& result, gmp_RR a) const
+  {
+    (void) result;
+    (void) a;
+    return false;
+  }
+
+  void set_var(ElementType& result, int v) const
+  {
+    (void) v;
+    fmpq_set_si(&result, 1, 1);
+  }
+
   /** @} */
 
   /** @name arithmetic
@@ -263,6 +275,9 @@ class ARingQQFlint : public SimpleARing<ARingQQFlint>
 
   bool lift(const Ring* Rg, const ElementType& f, ring_elem& result) const
   {
+    (void) Rg;
+    (void) f;
+    (void) result;
     return false;
   }
 

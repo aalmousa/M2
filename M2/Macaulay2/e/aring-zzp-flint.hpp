@@ -16,8 +16,11 @@ class RingMap;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-#include "flint/arith.h"
-#include "flint/nmod_vec.h"
+#include <flint/flint.h>  // for fmpz_t, nmod_t, flint_rand_t
+#include <flint/fmpz.h>   // for fmpz_clear, fmpz_fdiv_ui, fmpz_init
+#ifdef HAVE_FLINT_NMOD_H
+  #include <flint/nmod.h>   // for nmod_neg, nmod_add, nmod_div, nmod_mul
+#endif
 #pragma GCC diagnostic pop
 
 namespace M2 {
@@ -80,7 +83,7 @@ class ARingZZpFlint : public SimpleARing<ARingZZpFlint>
 
   void init(ElementType &result) const { result = 0; }
   void init_set(ElementType &result, ElementType a) const { result = a; }
-  static void clear(ElementType &result) { /* nothing */}
+  static void clear(ElementType &result) { (void) result; }
 
   void set(ElementType &result, ElementType a) const { result = a; }
   void set_zero(ElementType &result) const { result = 0; }
@@ -95,7 +98,12 @@ class ARingZZpFlint : public SimpleARing<ARingZZpFlint>
     fmpz_clear(b);
   }
 
-  void set_var(ElementType &result, int v) const { result = 1; }
+  void set_var(ElementType &result, int v) const
+  {
+    (void) v;
+    result = 1;
+  }
+
   void set_from_mpz(ElementType &result, mpz_srcptr a) const
   {
     result = mpz_fdiv_ui(a, mCharac);
@@ -111,7 +119,13 @@ class ARingZZpFlint : public SimpleARing<ARingZZpFlint>
     return true;
   }
 
-  bool set_from_BigReal(ElementType &result, gmp_RR a) const { return false; }
+  bool set_from_BigReal(ElementType &result, gmp_RR a) const
+  {
+    (void) result;
+    (void) a;
+    return false;
+  }
+
   // arithmetic
   void negate(ElementType &result, ElementType a) const
   {

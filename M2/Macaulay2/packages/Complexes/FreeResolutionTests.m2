@@ -36,7 +36,7 @@ TEST ///
   assert(dd^F3_1 == gens I) -- Strategy=>3 preserves the generators
   
   I = ideal I_*
-  Fz = freeResolution(I, Strategy => "Syzygies")
+  Fz = freeResolution(I, Strategy => Syzygies)
   assert isWellDefined Fz
   assert(prune HH Fz == complex M) -- only guaranteed to be isomorphic?
   assert(B1 === betti Fz)
@@ -49,15 +49,23 @@ TEST ///
 
   -- Homogenization, ZZ, Field don't handle this input
   I = ideal I_*
-  assert try(freeResolution(I, Strategy => "Homogenization"); false) else true
-  assert try(freeResolution(I, Strategy => "ZZ"); false) else true
-  assert try(freeResolution(I, Strategy => "Field"); false) else true
+  assert try(freeResolution(I, Strategy => Homogenization); false) else true
+  assert try(freeResolution(I, Strategy => OverZZ); false) else true
+  assert try(freeResolution(I, Strategy => OverField); false) else true
 
   I = ideal I_*
-  Fn = freeResolution(I, Strategy => "Nonminimal")
+  Fn = freeResolution(I, Strategy => Nonminimal)
   assert isWellDefined Fn
   assert(prune HH Fn == complex M) -- only guaranteed to be isomorphic?
   assert(B1 =!= betti Fn) -- Fn is non minimal in this example
+
+  -- this is meant to be the GB of the above I.
+  I = ideal matrix {{a*b-c*d, b*c*d-c*d^2, a^3-c^3, a*c*d^2-c^2*d^2, b*c^3-a^2*c*d}}
+  Fn = freeResolution(I, Strategy => NonminimalWithGB)
+  assert isWellDefined Fn
+  assert(prune HH Fn == complex M) -- only guaranteed to be isomorphic?
+  assert(B1 =!= betti Fn) -- Fn is non minimal in this example
+  
 ///
 
 TEST ///
@@ -116,13 +124,13 @@ TEST ///
   assert(length C == 3)
 
   I = ideal I_*
-  C = freeResolution(I, LengthLimit => 3, Strategy => "Syzygies")
+  C = freeResolution(I, LengthLimit => 3, Strategy => Syzygies)
   assert isWellDefined C
   assert(length C == 3)
-  C = freeResolution(I, LengthLimit => 4, Strategy => "Syzygies")
+  C = freeResolution(I, LengthLimit => 4, Strategy => Syzygies)
   assert isWellDefined C
   assert(length C == 4)
-  C = freeResolution(I, LengthLimit => 3, Strategy => "Syzygies")
+  C = freeResolution(I, LengthLimit => 3, Strategy => Syzygies)
   assert isWellDefined C  
   assert(length C == 3)
 
@@ -133,15 +141,22 @@ TEST ///
   I = ideal(a^2-b^2, a*b*c, a^3-b*c*e, b^4-a*h^3, a*f*g*h^2-b*c*d*j^2)
 
 
-  C = freeResolution(I, LengthLimit => 3, Strategy => "Nonminimal")
+  C = freeResolution(I, LengthLimit => 3, Strategy => Nonminimal)
   assert isWellDefined C
   assert(length C == 3)
-  C = freeResolution(I, LengthLimit => 4, Strategy => "Nonminimal")
+  C = freeResolution(I, LengthLimit => 4, Strategy => Nonminimal)
   assert isWellDefined C
   assert(length C == 4)
-  C = freeResolution(I, LengthLimit => 3, Strategy => "Nonminimal")
+  C = freeResolution(I, LengthLimit => 3, Strategy => Nonminimal)
   assert isWellDefined C  
   assert(length C == 3)
+
+  I = ideal gens gb ideal I_*
+  C = freeResolution(I, LengthLimit => 4, Strategy => NonminimalWithGB)
+  assert isWellDefined C
+  assert(length C == 4)
+
+  C = freeResolution(I, LengthLimit => 4, Strategy => Nonminimal)
 ///
 
 TEST ///
@@ -169,7 +184,7 @@ TEST ///
   assert(betti C === betti C2)
   
   I = ideal I_*
-  C3 = freeResolution(I, Strategy => "Nonminimal", LengthLimit => 7)
+  C3 = freeResolution(I, Strategy => Nonminimal, LengthLimit => 7)
   assert isWellDefined C3
 ///
 
@@ -201,21 +216,21 @@ TEST ///
   assert(betti C0 == betti C3)
 
   I = ideal I_*
-  (usedtime, C) = toSequence timing freeResolution(I, LengthLimit => 6, Strategy => 0)
+  (usedtime, C) = toSequence elapsedTiming freeResolution(I, LengthLimit => 6, Strategy => 0)
   assert isWellDefined C
   assert(length C == 6)
   
-  (usedtime1, C1) = toSequence timing freeResolution(I, LengthLimit => 6, Strategy => 1) -- no recomputation
+  (usedtime1, C1) = toSequence elapsedTiming freeResolution(I, LengthLimit => 6, Strategy => 1) -- no recomputation
   assert isWellDefined C1
   assert(length C1 == 6)
   assert(usedtime1 < usedtime/5) -- this /5 is a heuristic, just to check that essentially no computation is happening for usedtime1
 
-  (usedtime2, C2) = toSequence timing freeResolution(I, LengthLimit => 7, Strategy => 1)
+  (usedtime2, C2) = toSequence elapsedTiming freeResolution(I, LengthLimit => 7, Strategy => 1)
   assert isWellDefined C2
   assert(length C2 == 7)
   assert(usedtime1 < usedtime2/2)
   
-  (usedtime3, C3) = toSequence timing freeResolution(I, LengthLimit => 5, Strategy => 0) -- does change length, no recomputation
+  (usedtime3, C3) = toSequence elapsedTiming freeResolution(I, LengthLimit => 5, Strategy => 0) -- does change length, no recomputation
   assert isWellDefined C3
   assert(length C3 == 5)
   assert(usedtime3 < usedtime2/2)
@@ -272,13 +287,13 @@ TEST ///
   assert(betti F == betti F3)
     
   I = ideal I_*
-  FS = freeResolution(I, Strategy => "Syzygies")
+  FS = freeResolution(I, Strategy => Syzygies)
   assert isWellDefined FS
   assert(betti F == betti FS)
 
   -- TODO: Nonminimal should be able to handle QQ coefficients.
   -- I = ideal I_*
-  -- FN = freeResolution(I, Strategy => "Nonminimal") -- bad error message?
+  -- FN = freeResolution(I, Strategy => Nonminimal) -- bad error message?
   -- assert isWellDefined FN
 ///
 
@@ -341,7 +356,7 @@ TEST ///
   S = QQ[a]/(a^3-a-1)
   kk = toField S
   M = coker sub(random(S^3, S^{-2,-2}) + random(S^3, S^{-1,-1}) + random(S^3, S^2), kk)
-  F = freeResolution(M, Strategy => "Field") -- BUG!!: first term should be kk^1 on the nose, I would prefer.
+  F = freeResolution(M, Strategy => OverField) -- BUG!!: first term should be kk^1 on the nose, I would prefer.
   assert isWellDefined F
   g = augmentationMap F
   assert(source g == F)
@@ -379,7 +394,7 @@ TEST ///
   assert isHomogeneous F
 
   I = ideal I_*
-  freeResolution(comodule I, Strategy => "Syzygies")
+  freeResolution(comodule I, Strategy => Syzygies)
 
   -- Weyl algebras
   S = QQ[x,y,Dx,Dy, WeylAlgebra => {{x,Dx}, {y,Dy}}]
@@ -414,7 +429,7 @@ TEST ///
   assert(betti F2 === betti F3)
 
   I = ideal I_*
-  Fs = freeResolution(comodule I, Strategy => "Syzygies")
+  Fs = freeResolution(comodule I, Strategy => Syzygies)
   assert isWellDefined Fs
   assert isHomogeneous Fs
   assert(betti F2 === betti Fs)
@@ -454,12 +469,12 @@ TEST ///
   assert(betti F2 === betti F3)
 
   I = ideal I_*
-  Fs = freeResolution(comodule I, LengthLimit => 5, Strategy => "Syzygies")
+  Fs = freeResolution(comodule I, LengthLimit => 5, Strategy => Syzygies)
   betti Fs === betti F2
 
   I = ideal I_*
-  try(freeResolution(comodule I, Strategy => "Syzygies"); false) else true
-  Fs = freeResolution(comodule I, LengthLimit => 5, Strategy => "Syzygies")
+  try(freeResolution(comodule I, Strategy => Syzygies); false) else true
+  Fs = freeResolution(comodule I, LengthLimit => 5, Strategy => Syzygies)
   assert(betti F2 === betti Fs)
   
   I = ideal I_*
@@ -482,8 +497,8 @@ TEST ///
   assert(HHmF == HHF)
 
   I = ideal(a*b*c-a*d)
-  assert try(freeResolution(comodule I, LengthLimit => 5, Strategy => "Homogenization");false) else true
-  -- possible TODO: would be nice if "Homogenization" handled skew commuting variables
+  assert try(freeResolution(comodule I, LengthLimit => 5, Strategy => Homogenization);false) else true
+  -- possible TODO: would be nice if Homogenization handled skew commuting variables
 
   -- Direct homogenization works:
   Sh = S[h, Join => false]
@@ -506,7 +521,7 @@ TEST ///
   E = ZZ/101[e_1..e_6, SkewCommutative => true]
   --I = orlikSolomon(A, E)  
   I = ideal(e_4*e_5-e_4*e_6+e_5*e_6,e_2*e_3-e_2*e_6+e_3*e_6,e_1*e_3-e_1*e_5+e_3*e_5,e_1*e_2-e_1*e_4+e_2*e_4)
-  F = freeResolution(E^1/I, LengthLimit => 7, Strategy => "Syzygies")
+  F = freeResolution(E^1/I, LengthLimit => 7, Strategy => Syzygies)
   assert isWellDefined F
   assert isHomogeneous F
   HHF = prune HH canonicalTruncation(F, 0, 6)
@@ -538,7 +553,7 @@ TEST ///
   freeResolution(I, LengthLimit => 4)
   freeResolution(I, LengthLimit => 6, DegreeLimit => 1)
 
-  Fs = freeResolution(ideal I_*, LengthLimit => 10, Strategy => "Syzygies")
+  Fs = freeResolution(ideal I_*, LengthLimit => 10, Strategy => Syzygies)
   assert isWellDefined Fs
   assert isHomogeneous Fs
   HHF = prune HH canonicalTruncation(Fs, 0, 9)
@@ -599,7 +614,7 @@ TEST ///
   assert isHomogeneous I
   gbTrace=1
   I = ideal I_*
-  F = freeResolution(comodule I, LengthLimit => 5) -- default is, we think, "Syzygies"
+  F = freeResolution(comodule I, LengthLimit => 5) -- default is, we think, Syzygies
   assert isWellDefined F
   assert isHomogeneous F
   HHF = prune HH canonicalTruncation(F, 0, 4)
@@ -613,7 +628,7 @@ TEST ///
   assert isHomogeneous I
   gbTrace=1
   I = ideal I_*
-  F2 = freeResolution(comodule I, LengthLimit => 5) -- default is, we think, "Syzygies"
+  F2 = freeResolution(comodule I, LengthLimit => 5) -- default is, we think, Syzygies
   assert isWellDefined F2
   assert isHomogeneous F2
   HHF = prune HH canonicalTruncation(F2, 0, 4)
@@ -667,7 +682,7 @@ TEST ///
   -- prune HH F == complex prune coker first smithNormalForm m
 
   M = coker matrix {{-71, -216, 36}, {46, 129, -18}, {50, 160, -29}}
-  Fs = freeResolution(M, Strategy => "Syzygies")
+  Fs = freeResolution(M, Strategy => Syzygies)
   phi = augmentationMap Fs
   assert isWellDefined phi
   assert isComplexMorphism phi
@@ -693,7 +708,7 @@ TEST ///
   assert(coker f == 0)
 
   I = ideal I_*
-  F2 = freeResolution(I, Strategy => "Syzygies")
+  F2 = freeResolution(I, Strategy => Syzygies)
   assert isWellDefined F2
   f = augmentationMap F2
   assert isWellDefined f
@@ -718,22 +733,22 @@ TEST ///
   I = ideal"abc-de2, abd-c2d, ac2-bd2, abcde"
   gbTrace=2
 
-  (usedtime1, C) = toSequence timing freeResolution(I, Strategy => "Nonminimal")
+  (usedtime1, C) = toSequence elapsedTiming freeResolution(I, Strategy => Nonminimal)
   assert isWellDefined C
 
-  (usedtime2, C2) = toSequence timing freeResolution(I, Strategy => "Nonminimal")
-  assert(usedtime2 < usedtime1/10)
+  (usedtime2, C2) = toSequence elapsedTiming freeResolution(I, Strategy => Nonminimal)
+  assert BinaryOperation(symbol <, usedtime2, usedtime1/10)
 
-  (usedtime3, C3) = toSequence timing freeResolution I
-  assert(usedtime3 >  5*usedtime2)
+  (usedtime3, C3) = toSequence elapsedTiming freeResolution I
+  assert BinaryOperation(symbol >, usedtime3, 5*usedtime2)
 
-  (usedtime4, C4) = toSequence timing freeResolution(I, Strategy => Engine)
-  assert(usedtime4 < usedtime3/2)
+  (usedtime4, C4) = toSequence elapsedTiming freeResolution(I, Strategy => Engine)
+  assert BinaryOperation(symbol <, usedtime4, usedtime3/2)
 
   freeResolution(I, Strategy => 0) -- not recomputing
   freeResolution(I, Strategy => 1) -- not recomputing
   freeResolution(I, Strategy => 2) -- not recomputing
-  freeResolution(I, Strategy => "Nonminimal")
+  freeResolution(I, Strategy => Nonminimal)
 ///
 
 TEST ///
@@ -791,6 +806,7 @@ TEST ///
 
 TEST ///
   -- of length limits and free resolutions
+  debug needsPackage "Complexes"
   R = ZZ/32003[a..d]/(a^2-b*c)
   M = coker vars R;
   C1 = freeResolution(M, LengthLimit => 4);
@@ -832,6 +848,7 @@ TEST ///
 ///
 
 TEST ///
+  debug needsPackage "Complexes"
   R = ZZ/101[a..d]
   M = R^0
   C = freeResolution M
@@ -849,15 +866,29 @@ TEST ///
   assert(C2 == 0)
 ///
 
+-*
+restart
+needsPackage "Complexes"
+*-
+TEST ///
+  needsPackage "InverseSystems"
+  R = ZZ/101[a..e]
+  F = a^4 + b^4 + c^4 +d^4 + e^4 + (a+b+c+d+e)^4
+  I = inverseSystem F
+  bt1 = betti res I
+  bt2 = minimalBetti I
+  assert(bt1 == bt2)
+///
 
+-*  
+  restart
+  needsPackage("Complexes")
+*-
 ///
   -- code to test control-c during a computation.
   -- We don't know how to make this into a proper test.
   -- TODO (possibly): allow snapshot of a partially computed resolution.
--*  
-  restart
   debug needsPackage("Complexes")
-*-
   gbTrace=1
   S = ZZ/101[vars(0..20)]
   I = ideal for i from 1 to numgens S list S_(i-1)^i
@@ -870,4 +901,31 @@ TEST ///
   F = freeResolution(M, Strategy => Engine, LengthLimit => 4) -- This one works.
   assert isWellDefined F
   F2 = freeResolution(M, LengthLimit => 2)
+///
+
+TEST ///
+  R = QQ[x, Degrees => {{}}]
+  M = image x
+  F = freeResolution M
+  assert(isWellDefined F)
+  epsilon = augmentationMap F
+  assert isWellDefined epsilon
+  assert(M === (target epsilon)_0)
+///
+
+TEST ///
+  -- errorDepth = 0
+  A = ZZ/103[x,y,z];
+  J = ideal(x^3,y^4,z^5);
+  B = A/J;
+  f = matrix {{27*x^2-19*z^2, 38*x^2*y+47*z^3},
+      { -5*x^2+z^2, -37*x^2*y+51*x*y^2-36*y^3+11*y*z^2+8*z^3},
+      {x^2-x*y, z^3}};
+  M = cokernel f;
+  N = B^1/(x^2 + z^2,y^3 - 2*z^3);
+  time E = Ext(M,N); -- used 3.32 seconds in version 0.9.92
+  t = tally degrees target presentation E
+  u = new Tally from {{-3, -7} => 7, {-3, -6} => 7, {0, 1} => 3, {0, 2} => 4, {-4, -9} => 4, {-4, -8} => 1, {-4, -7} => 1, {-1, -2} => 4, {-2, -5} => 3,
+        {-2, -4} => 8}
+  assert ( t === u )
 ///

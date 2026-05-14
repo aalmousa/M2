@@ -31,7 +31,16 @@ setupRenderer = (parser, joiner, T) -> (
 -- Default joiners: (TODO: move to string.m2?)
 -- concatenate
 -- horizontalJoin
-wrapHorizontalJoin := x -> wrap horizontalJoin x
+net BR := info BR := x -> stack()
+net HR := info HR := x -> concatenate(printWidth:"-")
+
+horizontalJoin' := x -> ( -- horizontalJoin except for BRs and HRs
+    netBR := net BR{}; netHR := net HR{};
+    x' := sublists(toList x, y -> y=!=netBR and y=!=netHR, toList, y -> {y});
+    stack(horizontalJoin\x')
+    )
+
+wrapHorizontalJoin := x -> wrap horizontalJoin' x
 
 -- Main types: (see hypertext.m2)
 -- Hypertext  > HypertextParagraph, HypertextContainer
@@ -52,7 +61,7 @@ scan({net, info, html, markdown, tex}, parser ->
 
 -- Rendering by horizontal join of inputs
 scan({net, info},
-    parser -> setupRenderer(parser, horizontalJoin, Hypertext))
+    parser -> setupRenderer(parser, horizontalJoin', Hypertext))
 scan({net, info},
     parser -> setupRenderer(parser, wrapHorizontalJoin, HypertextParagraph))
 
@@ -172,18 +181,16 @@ info HEADER1 := Hop(info,"*")
 info HEADER2 := Hop(info,"=")
 info HEADER3 := Hop(info,"-")
 
-net  HR :=
-info HR := x -> concatenate(printWidth:"-")
-
 net  PRE  :=
 net   TT  :=
 net CODE  :=
 net SAMP  :=
-net  KBD  :=
 info TT   :=
 info SAMP :=
-info  KBD :=
-info CODE :=  x -> horizontalJoin apply(noopts x,net)
+info CODE :=  x -> horizontalJoin' apply(noopts x,net)
+
+net  KBD :=
+info KBD := x -> formatNoEscaping toString horizontalJoin' apply(noopts x,net)
 
 info PRE  := x ->
     wrap(printWidth, "-", concatenate apply(noopts x,toString @@ info))
@@ -297,7 +304,7 @@ info TOH := x -> (
 
 net TO  := x -> (
      if class x#0 === DocumentTag
-     then concatenate( "\"", format x#0, "\"", if x#?1 then x#1)
+     then concatenate(formatNoEscaping format x#0, if x#?1 then x#1)
      else horizontalJoin( "\"", net x#0, "\"", if x#?1 then x#1)
      )
 net TO2 := x -> format x#1

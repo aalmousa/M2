@@ -1,29 +1,35 @@
 #include <Python.h>
 #include "python-exports.h"
+#include "pythoncapi_compat.h"
 
 #include <gmp.h>
 
-int python_RunSimpleString(M2_string s) {
-  char *t = M2_tocharstar(s);
-  int ret = PyRun_SimpleString(t);
-  GC_FREE(t);
-  return ret;
-}
+const char * python_Initialize(char *executable)
+{
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 8
+  PyConfig config;
+  PyStatus status;
 
-PyObject *globals, *locals;
+  PyConfig_InitIsolatedConfig(&config);
+  status = PyConfig_SetBytesString(&config, &config.executable, executable);
+  if (PyStatus_Exception(status))
+    goto exception;
 
-static void init() {
-  if (!globals) {
-#if 0    
-    globals = PyEval_GetGlobals(); /* this returns null because no frame is currently executing */
-#elif 1
-    globals = PyDict_New();
-    PyDict_SetItemString(globals, "__builtins__", PyEval_GetBuiltins());
+  status = Py_InitializeFromConfig(&config);
+
+exception:
+  PyConfig_Clear(&config);
+
+  if (PyStatus_Exception(status) != 0)
+    return status.err_msg;
+  else
+    return NULL;
 #else
-    globals = PyDict_New();
-    PyRun_String("import __builtin__ as __builtins__",Py_eval_input, globals, locals);
+  (void)executable;
+
+  Py_Initialize();
+  return NULL;
 #endif
-  }
 }
 
 /**************
@@ -37,14 +43,6 @@ int python_ErrOccurred(void) {
 		return -1;
 	} else
 		return (PyErr_Occurred() != NULL);
-}
-
-PyObject *python_RunString(M2_string s) {
-  char *t = M2_tocharstar(s);
-  init();
-  PyObject *ret = PyRun_String(t,Py_eval_input,globals,locals);
-  GC_FREE(t);
-  return ret;
 }
 
 int python_Main() {
@@ -92,89 +90,128 @@ void python_initspam() {
 /* GMP <-> Python integer conversion routines from gmpy2
  * https://github.com/aleaxit/gmpy
  * Copyright 2000-2009 Alex Martelli
- * Copyright 2008-2022 Case Van Horsen
+ * Copyright 2008-2025 Case Van Horsen
  * LGPL-3.0+ */
 
-mpz_ptr python_LongAsZZ(mpz_ptr z, PyObject *obj)
+/* mpz_set_PyLong from src/gmpy2_convert_gmp.c */
+int python_LongAsZZ(mpz_ptr z, PyObject *obj)
 {
-  int negative;
-  Py_ssize_t len;
-  PyLongObject *templong;
+#ifndef PYPY_VERSION
+    const PyLongLayout *layout = PyLong_GetNativeLayout();
+    PyLongExport long_export = {0, 0, 0, 0, 0};
 
-  templong = (PyLongObject *)obj;
+    if (PyLong_Export(obj, &long_export) < 0) {
+        /* LCOV_EXCL_START */
+        return -1;
+        /* LCOV_EXCL_STOP */
+    }
+    if (long_export.digits) {
+        mpz_import(z, long_export.ndigits, layout->digits_order,
+                   layout->digit_size, layout->digit_endianness,
+                   layout->digit_size*8 - layout->bits_per_digit,
+                   long_export.digits);
+        if (long_export.negative) {
+            mpz_neg(z, z);
+        }
+        PyLong_FreeExport(&long_export);
+    }
+    else {
+        const int64_t value = long_export.value;
 
-  switch (Py_SIZE(templong)) {
-  case -1:
-    mpz_set_si(z, -(sdigit)templong->ob_digit[0]);
-    break;
-  case 0:
-    mpz_set_si(z, 0);
-    break;
-  case 1:
-    mpz_set_si(z, templong->ob_digit[0]);
-    break;
-  default:
-    mpz_set_si(z, 0);
-
-    if (Py_SIZE(templong) < 0) {
-      len = -Py_SIZE(templong);
-      negative = 1;
-    } else {
-      len = Py_SIZE(templong);
-      negative = 0;
+        if (LONG_MIN <= value && value <= LONG_MAX) {
+            mpz_set_si(z, value);
+        }
+        else {
+            mpz_import(z, 1, -1, sizeof(int64_t), 0, 0, &value);
+            if (value < 0) {
+                mpz_t tmp;
+                mpz_init(tmp);
+                mpz_ui_pow_ui(tmp, 2, 64);
+                mpz_sub(z, z, tmp);
+                mpz_clear(tmp);
+            }
+        }
+    }
+    return 0;
+#else
+    int overflow;
+    long value = PyLong_AsLongAndOverflow(obj, &overflow);
+    if (!overflow) {
+        mpz_set_si(z, value);
+        return 0;
     }
 
-    mpz_import(z, len, -1, sizeof(templong->ob_digit[0]), 0,
-	       sizeof(templong->ob_digit[0])*8 - PyLong_SHIFT,
-	       templong->ob_digit);
+    PyObject *s = PyNumber_ToBase(obj, 16);
 
-    if (negative)
-      mpz_neg(z, z);
-  }
+    if (!s) {
+        /* LCOV_EXCL_START */
+        return -1;
+        /* LCOV_EXCL_STOP */
+    }
 
-  return z;
+    const char *str = PyUnicode_AsUTF8(s), *p = str;
+
+    if (!str) {
+        /* LCOV_EXCL_START */
+        Py_DECREF(s);
+        return -1;
+        /* LCOV_EXCL_STOP */
+    }
+
+    int negative = (str[0] == '-');
+
+    p += 2;
+    if (negative) {
+        p++;
+    }
+    mpz_init_set_str(z, p, 16);
+    Py_DECREF(s);
+    if (negative) {
+        mpz_neg(z, z);
+    }
+    return 0;
+#endif
 }
 
+/* GMPy_PyLong_From_MPZ from src/gmpy2_convert_gmp.c */
+/* replace obj->z with z when updating */
 PyObject *python_LongFromZZ(mpz_srcptr z)
 {
-  int negative;
-  size_t count, size;
-  PyLongObject *result;
+    if (mpz_fits_slong_p(z)) {
+        return PyLong_FromLong(mpz_get_si(z));
+    }
 
-  if (mpz_sgn(z) < 0)
-    negative = 1;
-  else
-    negative = 0;
+#ifndef PYPY_VERSION
+    const PyLongLayout *layout = PyLong_GetNativeLayout();
+    size_t size = (mpz_sizeinbase(z, 2) +
+                   layout->bits_per_digit - 1)/layout->bits_per_digit;
+    void *digits;
+    PyLongWriter *writer = PyLongWriter_Create(mpz_sgn(z) < 0, size,
+                                               &digits);
+    if (writer == NULL) {
+        /* LCOV_EXCL_START */
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
-  size = (mpz_sizeinbase(z, 2) + PyLong_SHIFT + 1) / PyLong_SHIFT;
-  result = _PyLong_New(size);
-  if (!result)
-    return NULL;
-
-  mpz_export(result->ob_digit, &count, -1, sizeof(result->ob_digit[0]), 0,
-	     sizeof(result->ob_digit[0]) * 8 - PyLong_SHIFT, z);
-
-  if (count == 0)
-    result->ob_digit[0] = 0;
-
-  while ((size > 0) && (result->ob_digit[size - 1] == 0))
-    size--;
-
-#if PY_VERSION_HEX >= 0x030900A4
-  Py_SET_SIZE(result, size);
+    mpz_export(digits, NULL, layout->digits_order, layout->digit_size,
+               layout->digit_endianness,
+               layout->digit_size*8 - layout->bits_per_digit, z);
+    return PyLongWriter_Finish(writer);
 #else
-  Py_SIZE(result) = size;
-#endif
+    PyObject *str = GMPy_PyStr_From_MPZ(obj, 16, 0, NULL);
 
-  if (negative) {
-#if PY_VERSION_HEX >= 0x030900A4
-    Py_SET_SIZE(result, - Py_SIZE(result));
-#else
-    Py_SIZE(result) = - Py_SIZE(result);
-#endif
-  }
+    if (!str) {
+        /* LCOV_EXCL_START */
+        return NULL;
+        /* LCOV_EXCL_STOP */
+    }
 
-  return (PyObject*)result;
+    PyObject *res = PyLong_FromUnicodeObject(str, 16);
+
+    Py_DECREF(str);
+    return res;
+#endif
 }
 
 #if 0

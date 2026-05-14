@@ -11,8 +11,8 @@ void tableau::initialize(int nvars)
   dim = nvars;
   maxwt = SCHUR_MAX_WT;
   wt = 0;
-  lambda = 0;
-  p = 0;
+  lambda = nullptr;
+  p = nullptr;
   xloc = newarray_atomic(int, SCHUR_MAX_WT + 1);
   yloc = newarray_atomic(int, SCHUR_MAX_WT + 1);
 }
@@ -78,7 +78,7 @@ bool SchurRing::initialize_schur()
   _SMfilled.initialize(n_vars());
   _SMcurrent = 0;
   _SMfinalwt = 0;
-  _SMresult = 0;
+  _SMresult = nullptr;
 
   _SMtab.p = newarray_atomic_clear(int, nvars_ + 1);
   return true;
@@ -88,21 +88,24 @@ SchurRing *SchurRing::create(const PolynomialRing *R)
 {
   SchurRing *result = new SchurRing;
   result->initialize_poly_ring(R->getCoefficients(), R->getMonoid());
-  if (!result->initialize_schur()) return 0;
+  if (!result->initialize_schur()) return nullptr;
   // No GBRing
   return result;
 }
 
 SchurRing *SchurRing::create(const Ring *A, int n)
 {
+  (void) A;
+  (void) n;
   ERROR("not implemented yet");
-  return 0;
+  return nullptr;
 }
 
 SchurRing *SchurRing::createInfinite(const Ring *A)
 {
+  (void) A;
   ERROR("not implemented yet");
-  return 0;
+  return nullptr;
 }
 
 void SchurRing::text_out(buffer &o) const
@@ -220,10 +223,10 @@ Nterm *SchurRing::skew_schur(int *lambda, int *p)
   _SMtab.resize(_SMfinalwt);
   _SMfilled.resize(_SMfinalwt);
   _SMfilled.fill(lambda, p);
-  _SMresult = NULL;
+  _SMresult = nullptr;
   SM();
   ring_elem result = _SMresult;
-  _SMresult = NULL;
+  _SMresult = nullptr;
   return result;
 }
 

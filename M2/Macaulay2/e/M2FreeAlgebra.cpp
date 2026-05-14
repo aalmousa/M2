@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "exceptions.hpp"
+#include "monoid.hpp"
 #include "monomial.hpp"
 #include "relem.hpp"
 
@@ -39,20 +40,17 @@ ring_elem M2FreeAlgebraOrQuotient::fromModuleMonom(const ModuleMonom& m) const
   return fromPoly(result);
 }
 
-
-
 M2FreeAlgebra* M2FreeAlgebra::create(const Ring* K,
                                      const std::vector<std::string>& names,
                                      const PolynomialRing* degreeRing,
                                      const std::vector<int>& degrees,
                                      const std::vector<int>& wtvecs,
-                                     const std::vector<int>& heftVector
-                                     )
+                                     const std::vector<int>& heftVector)
 {
   assert(K != nullptr);
   auto F = std::unique_ptr<FreeAlgebra>(FreeAlgebra::create(K, names, degreeRing, degrees, wtvecs, heftVector));
   M2FreeAlgebra* result = new M2FreeAlgebra(std::move(F));
-  result->initialize_ring(K->characteristic(), degreeRing, nullptr);
+  result->initialize_ring(K->characteristic(), degreeRing, heftVector);
   result->zeroV = result->from_long(0);
   result->oneV = result->from_long(1);
   result->minus_oneV = result->from_long(-1);
@@ -79,6 +77,7 @@ void M2FreeAlgebra::text_out(buffer &o) const
 
 unsigned int M2FreeAlgebra::computeHashValue(const ring_elem a) const
 {
+  (void) a;
   return 0; // TODO: change this to a more reasonable hash code.
 }
 
@@ -204,7 +203,7 @@ ring_elem M2FreeAlgebra::copy(const ring_elem f) const
 
 void M2FreeAlgebra::remove(ring_elem &f) const
 {
-  // do nothing
+  (void) f;
 }
 
 ring_elem M2FreeAlgebra::negate(const ring_elem f1) const
@@ -279,6 +278,10 @@ ring_elem M2FreeAlgebra::divide(const ring_elem f, const ring_elem g) const
 void M2FreeAlgebra::syzygy(const ring_elem a, const ring_elem b,
                       ring_elem &x, ring_elem &y) const
 {
+  (void) a;
+  (void) b;
+  (void) x;
+  (void) y;
   throw exc::internal_error("M2FreeAlgebra::syzygy is not yet written!");
 
   // TODO: In the commutative case, this function is to find x and y (as simple as possible)
@@ -420,11 +423,6 @@ bool M2FreeAlgebra::is_homogeneous(const Poly* f) const
 {
   if (f == nullptr) return true;
   return freeAlgebra().is_homogeneous(*f);
-}
-
-void M2FreeAlgebra::degree(const ring_elem f, monomial d) const
-{
-  multi_degree(f, d);
 }
 
 bool M2FreeAlgebra::multi_degree(const ring_elem g, monomial d) const

@@ -97,6 +97,8 @@ set(HPPONLYFILES
   f4/memblock.hpp
   f4/ntuple-monomial.hpp
   f4/varpower-monomial.hpp
+  gb-f4/MonomialTypes.hpp
+  PolynomialStream.hpp
   schreyer-resolution/res-memblock.hpp
   schreyer-resolution/res-monomial-types.hpp
   schreyer-resolution/res-schreyer-order.hpp
@@ -119,6 +121,8 @@ set(CPPONLYFILES
   interface/computation.h # no .cpp yet
   interface/cra.cpp
   interface/cra.h
+  interface/cone.cpp
+  interface/cone.h
   interface/factory.cpp
   interface/factory.h
   interface/flint.cpp
@@ -127,6 +131,10 @@ set(CPPONLYFILES
   interface/gmp-util.h # only has inline definitions
   interface/groebner.cpp
   interface/groebner.h
+  interface/m2-mem.cpp
+  interface/m2-mem.h
+  interface/m2-types.cpp
+  interface/m2-types.h
   interface/matrix.cpp
   interface/matrix.h
   interface/monoid.cpp
@@ -151,6 +159,9 @@ set(CPPONLYFILES
 # these files all have .hpp and .cpp files
 # MES TODO: put these NCAlgebra files (and friends) into alpha order in list
 set(SRCLIST
+  BasicPoly
+  BasicPolyList
+  BasicPolyListParser
   myalloc
   matrix-ncbasis
   M2FreeAlgebraQuotient
@@ -175,11 +186,12 @@ set(SRCLIST
   SLP
   ZZ
   ZZp
-  aring-RRi
   aring-CC
   aring-CCC
   aring-RR
   aring-RRR
+  aring-RRi
+  aring-CCi
   aring-gf-flint-big
   aring-gf-flint
   aring-m2-gf
@@ -281,13 +293,20 @@ set(SRCLIST
   ExponentList
   weylalg
   # Faugère's F4 Algorithm
+  gb-f4/Basis
+  gb-f4/GBF4Computation
+  gb-f4/GBF4Interface
+  gb-f4/MacaulayMatrix
+  gb-f4/MonomialHashTable
+  gb-f4/MonomialLookupTable
+  gb-f4/MonomialView
+  gb-f4/PolynomialList
+  gb-f4/SPairs
   f4/f4-computation
   f4/f4-m2-interface
-  f4/f4-mem
   f4/f4-monlookup
   f4/f4-spairs
   f4/f4
-  f4/gausser
   f4/hilb-fcn
   f4/monhashtable
   f4/moninfo
@@ -296,16 +315,13 @@ set(SRCLIST
   schreyer-resolution/res-f4-m2-interface
   schreyer-resolution/res-f4-monlookup
   schreyer-resolution/res-f4
-  schreyer-resolution/res-gausser-QQ-hybrid
-  schreyer-resolution/res-gausser-QQ
-  schreyer-resolution/res-gausser-ZZp
-  schreyer-resolution/res-gausser
   schreyer-resolution/res-moninfo-dense
   schreyer-resolution/res-moninfo-sparse
   schreyer-resolution/res-moninfo
   schreyer-resolution/res-monomial-sorter
   schreyer-resolution/res-poly-ring
   schreyer-resolution/res-schreyer-frame
+  schreyer-resolution/res-dep-graph
   # Boolean Involutive Gröbner Bases
   bibasis/bibasis
   bibasis/allocator
@@ -353,7 +369,7 @@ target_include_directories(M2-engine PUBLIC
   $<INSTALL_INTERFACE:include/Macaulay2>)
 
 # TODO: make engine independent of interpreter headers
-target_link_libraries(M2-engine PUBLIC M2-interpreter memtailor mathic mathicgb)
+target_link_libraries(M2-engine PUBLIC memtailor mathic mathicgb)
 
 if(EIGEN3_FOUND)
   target_link_libraries(M2-engine PUBLIC Eigen3::Eigen)
@@ -362,6 +378,20 @@ endif()
 if(OpenMP_FOUND)
   target_link_libraries(M2-engine PUBLIC OpenMP::OpenMP_CXX)
 endif()
+
+foreach(LIB IN LISTS PKGLIB_LIST)
+  if(${LIB}_FOUND)
+    target_link_libraries(M2-engine PUBLIC PkgConfig::${LIB})
+  endif()
+endforeach()
+
+foreach(LIB IN LISTS LIBRARIES_LIST)
+  if(${LIB}_FOUND)
+    target_link_libraries(M2-engine PUBLIC ${${LIB}_LIBRARIES})
+    target_include_directories(M2-engine PUBLIC
+        "$<BUILD_INTERFACE:${${LIB}_INCLUDE_DIR}>")
+  endif()
+endforeach()
 
 # Compiler warning flags
 target_compile_options(M2-engine PRIVATE
@@ -411,25 +441,28 @@ if(BUILD_TESTING)
 
   # TODO: overflow tests
   # TODO: break up into multiple branches
-  add_executable(M2-unit-tests
+  add_executable(M2-unit-tests EXCLUDE_FROM_ALL
     unit-tests/M2-cpp-replacement.cpp
-    unit-tests/M2-replacement.c
-    unit-tests/M2mem-replacement.c
-    unit-tests/M2mem-replacement.h
 
+    unit-tests/util-polyring-creation.hpp
+    unit-tests/util-polyring-creation.cpp
+    unit-tests/NewF4Test.cpp
     unit-tests/MonoidTest.cpp
+    unit-tests/PolyRingTest.cpp
 
     unit-tests/ARingTest.hpp
     unit-tests/ARingZZTest.cpp
     unit-tests/ARingZZpTest.cpp
-#    unit-tests/ARingGFTest.cpp # FIXME: see aring-gf-givaro.cpp:199
+#    unit-tests/ARingGFTest.cpp # TODO: needs rework - ARingGFFlint API has changed
     unit-tests/ARingQQFlintTest.cpp
     unit-tests/ARingQQGmpTest.cpp
     unit-tests/ARingRRTest.cpp
     unit-tests/ARingCCTest.cpp
     unit-tests/ARingRRRTest.cpp
+    unit-tests/ARingRRiTest.cpp
     unit-tests/ARingCCCTest.cpp
     unit-tests/NCGroebnerTest.cpp
+#    unit-tests/WeylAlgebraTest.cpp # TODO: add this file
 
     unit-tests/RingTest.hpp
     unit-tests/RingZZTest.cpp
@@ -447,6 +480,7 @@ if(BUILD_TESTING)
     unit-tests/SubsetTest.cpp
     unit-tests/basics-test.cpp
 
+    unit-tests/MatrixIOTest.cpp
     unit-tests/fromStream.cpp
     unit-tests/testMain.cpp # not needed, except for GC_INIT
     )

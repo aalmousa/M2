@@ -24,10 +24,11 @@ engine_RawRingElementArrayOrNull rawRoots(const RingElement *p,
                                           long prec,
                                           int unique)
 {
+  (void) unique;
   const Ring *R = p->get_ring();
   const PolynomialRing *P = R->cast_to_PolynomialRing();
   const Monoid *M = P->getMonoid();
-  if (P == 0) {
+  if (P == nullptr) {
     ERROR("expected a polynomial ring");
     return nullptr;
   }

@@ -15,6 +15,8 @@ const int LARGE_NUMBER = 32000;
 
 void tableau2::initialize(int nvars, int maxwt0)
 {
+  (void) nvars;
+  (void) maxwt0;
   maxwt = SCHUR_MAX_WT;
   wt = 0;
   lambda = nullptr;
@@ -318,12 +320,15 @@ ring_elem SchurRing2::copy(const ring_elem f) const
 
 ring_elem SchurRing2::invert(const ring_elem f) const
 {
+  (void) f;
   // This function is not relevant for this ring
   return zero();
 }
 
 ring_elem SchurRing2::divide(const ring_elem f, const ring_elem g) const
 {
+  (void) f;
+  (void) g;
   // This function is not relevant for this ring
   return zero();
 }
@@ -333,6 +338,8 @@ void SchurRing2::syzygy(const ring_elem a,
                         ring_elem &x,
                         ring_elem &y) const
 {
+  (void) a;
+  (void) b;
   // This function is not relevant for this ring
   x = zero();
   y = zero();
@@ -443,7 +450,7 @@ bool SchurRing2::promote(const Ring *Rf,
   else
     {
       const SchurRing2 *Sf = Rf->cast_to_SchurRing2();
-      if (Sf != 0)
+      if (Sf != nullptr)
         {
           if (coefficientRing == Sf->getCoefficientRing())
             {
@@ -473,7 +480,7 @@ bool SchurRing2::lift(const Ring *Rg,
   else
     {
       const SchurRing2 *Sg = Rg->cast_to_SchurRing2();
-      if (Sg != 0)
+      if (Sg != nullptr)
         {
           if (coefficientRing == Sg->getCoefficientRing())
             {
@@ -678,7 +685,7 @@ engine_RawArrayPairOrNull SchurRing2::list_form(const Ring *coeffR,
   if (coeffR != coefficientRing)
     {
       ERROR("expected coefficient ring of Schur ring");
-      return 0;
+      return nullptr;
     }
   const schur_poly *f1 = f.get_schur_poly();
   int n = static_cast<int>(f1->size());  // this is here because the lengths of
@@ -712,6 +719,8 @@ ring_elem SchurRing2::eval(const RingMap *map,
                            const ring_elem f,
                            int first_var) const
 {
+  (void) f;
+  (void) first_var;
   // Should we allow ring maps to other Schur rings?  No others are that well
   // defined...
   // Use promote and lift for those instead?
