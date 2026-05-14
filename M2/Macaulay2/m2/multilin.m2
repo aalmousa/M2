@@ -34,6 +34,18 @@ getMinorsStrategy := (R, m, strat) -> RawMinorsStrategyCodes#strat ?? (
     else error "'Strategy' keyword must be 'Cofactor', 'Bareiss' or 'Dynamic")
 
 -----------------------------------------------------------------------------
+-- koszul and eagonNorthcott
+-----------------------------------------------------------------------------
+-- more methods are installed in Complexes and OldChainComplexes
+
+koszul = method()
+koszul(ZZ, Matrix) := Matrix => (i, m) -> map(ring m, rawKoszul(i, raw m))
+koszul Matrix := -* ChainComplex => *- m -> missingPackage "either Complexes or OldChainComplexes"
+
+eagonNorthcott = method()
+eagonNorthcott Matrix := -* ChainComplex => *- m -> missingPackage "either Complexes or OldChainComplexes"
+
+-----------------------------------------------------------------------------
 -- symmetricAlgebra
 -----------------------------------------------------------------------------
 
@@ -141,9 +153,19 @@ minors(ZZ, Matrix) := Ideal => opts -> (j, m) -> (
 	       if f =!= null then f#0, 
 	       if f =!= null then f#1)))
 
-pfaffians = method(TypicalValue => Ideal)
-pfaffians(ZZ, Matrix) := (j, m) -> (
+pfaffians = method()
+pfaffians(ZZ, Matrix) := Ideal => (j, m) -> (
      ideal(map(ring m, rawPfaffians(j,raw m))))
+
+pfaffian = method()
+pfaffian Matrix := M -> (
+    if (
+	numRows M != numColumns M or
+	not zero(M + transpose M))
+    then error "expected a skew symmetric matrix";
+    if odd numRows M then 0_(ring M)
+    else if numRows M == 0 then 1_(ring M)
+    else promote(rawPfaffian raw M, ring M))
 
 -----------------------------------------------------------------------------
 -- trace and determinant

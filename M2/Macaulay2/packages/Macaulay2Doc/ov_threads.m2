@@ -41,7 +41,7 @@ Node
     including cpu caches; it is like running Macaulay2 on a computer that is running other big
     programs at the same time. We can see this using @ TO "elapsedTime" @.
   Example
-       L = random toList (1..10000);
+       L = shuffle toList (1..10000);
        elapsedTime         apply(1..100, n -> sort L);
        elapsedTime parallelApply(1..100, n -> sort L);
   Text
@@ -68,10 +68,9 @@ Node
     To run a function in another thread use @ TO schedule @, as in the
     following example.
   Example
-       R = ZZ/101[x,y,z];
-       I = (ideal vars R)^2
-       dogb = I -> () -> res quotient module I
-       f = dogb I
+       R = QQ[x,y,z];
+       I = ideal(x^2 + 2*y^2 - y - 2*z, x^2 - 8*y^2 + 10*z - 1, x^2 - 7*y*z)
+       f = () -> gens gb I
        t = schedule f
   Text
     Note that @ TO schedule @ returns a task, not the result of the computation,
@@ -86,7 +85,7 @@ Node
     To wait for the result and then retrieve it, use @ TO taskResult @.
   Example
        taskResult t
-       assert instance(oo,ChainComplex)
+       assert instance(oo, Matrix)
   Text
     It is possible to make a task without starting it running, using @ TO createTask @.
   Example
@@ -148,6 +147,10 @@ Node
     result has the same class as @VAR "L"@.   Normally the default strategy
     (@M2CODE "Strategy => null"@) is more efficient.
 
+    The order of the elements of the output is preserved.
+  Example
+    parallelApply(0..10, x -> x^2)
+  Text
     See @ TO "parallel programming with threads and tasks" @ for more information and an
     important warning about thread safety.
 Node

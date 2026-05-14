@@ -1,7 +1,7 @@
 -- TerraciniLoci - Macaulay2 package for computing the Terracini locus
 -- of a projective variety
 
--- Copyright (c) 2023-2024 Francesco Galuppi, Pierpaola Santarsiero,
+-- Copyright (c) 2023-2025 Francesco Galuppi, Pierpaola Santarsiero,
 -- Doug Torrance, and Ettore Teixeira Turatti
 
 -- This program is free software; you can redistribute it and/or
@@ -15,9 +15,7 @@
 -- GNU General Public License for more details.
 
 -- You should have received a copy of the GNU General Public License
--- along with this program; if not, write to the Free Software
--- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
--- 02110-1301, USA.
+-- along with this program; if not, see <https://www.gnu.org/licenses/>.
 
 --
 
@@ -31,22 +29,25 @@
 
 newPackage("TerraciniLoci",
     Headline => "Terracini loci of projective varieties",
-    Version => "0.2",
-    Date => "October 19, 2024",
+    Version => "0.5",
+    Date => "February 10, 2026",
     Authors => {
 	{
 	    Name => "Francesco Galuppi",
-	    Email => "francesco.galuppi@impan.pl"},
+	    Email => "f.galuppi@uw.edu.pl",
+	    HomePage => "https://www.mimuw.edu.pl/~galuppi/"},
 	{
 	    Name => "Pierpaola Santarsiero",
-	    Email => "pierpaola.santarsiero@uni-osnabrueck.de"},
+	    Email => "p.santarsiero@staff.univpm.it",
+	    HomePage => "https://pierpaolasantarsiero.wixsite.com/pierpaola"},
 	{
 	    Name => "Doug Torrance",
 	    Email => "dtorrance@piedmont.edu",
 	    HomePage => "https://webwork.piedmont.edu/~dtorrance"},
 	{
 	    Name => "Ettore Teixeira Turatti",
-	    Email => "ettore.t.turatti@uit.no"}},
+	    Email => "e.teixeira-turatti@uw.edu.pl",
+	    HomePage => "https://turattiettore.wixsite.com/ettoreturatti"}},
     HomePage => "https://github.com/d-torrance/terracini-loci",
     Keywords => {"Projective Algebraic Geometry"},
     PackageImports => {
@@ -59,6 +60,19 @@ newPackage("TerraciniLoci",
 ---------------
 
 -*
+
+0.5 (2026-12-10, M2 1.26.05)
+* update citation information
+* add author webpages
+* update author email addresses
+
+0.4 (2025-11-10, M2 1.25.11)
+* update GPL 2 text (FSF no longer has a physical address)
+
+0.3 (2025-05-10, M2 1.25.05)
+* add citation information
+* update link from arXiv -> DOI
+* update author email addresses
 
 0.2 (2024-10-19, M2 1.24.11)
 * stop exporting "Threads" symbol from FastMinors; now exported by Core
@@ -115,8 +129,9 @@ doc ///
     package for computing Terracini loci
   Description
     Text
-      This package implements the algorithms from Section 8 of the
-      paper @arXiv("2311.09067", "Geometry of first nonempty Terracini loci")@
+      This package implements the algorithms from Section 8 of the paper
+      @HREF("https://doi.org/10.1142/S0219199725500531",
+	  "Geometry of first nonempty Terracini loci")@
       by F. Galuppi, P. Santarsiero, D. Torrance, and E. Turatti.
 
       The Terracini locus of projective variety $X$ is a subvariety of
@@ -127,6 +142,23 @@ doc ///
 
       This package exports one method, @TO terraciniLocus@, for computing the
       ideals of these varieties.
+  Citation
+      @article {MR5026390,
+          AUTHOR = {Galuppi, Francesco and Santarsiero, Pierpaola and Torrance,
+                    Douglas A. and Turatti, Ettore Teixeira},
+           TITLE = {Geometry of first nonempty {T}erracini loci},
+         JOURNAL = {Commun. Contemp. Math.},
+        FJOURNAL = {Communications in Contemporary Mathematics},
+          VOLUME = {28},
+            YEAR = {2026},
+          NUMBER = {4},
+           PAGES = {Paper No. 2550053},
+            ISSN = {0219-1997,1793-6683},
+         MRCLASS = {14J45 (14Q15 15A69)},
+        MRNUMBER = {5026390},
+             DOI = {10.1142/S0219199725500531},
+             URL = {https://doi.org/10.1142/S0219199725500531},
+      }
 ///
 
 doc ///

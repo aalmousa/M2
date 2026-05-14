@@ -29,6 +29,8 @@ check-config:
 	    --with-system-memtailor=$(SYSTEM_MEMTAILOR)				\
 	    --with-system-mathic=$(SYSTEM_MATHIC)				\
 	    --with-system-mathicgb=$(SYSTEM_MATHICGB)				\
+	    --with-jansson=@JANSSON@						\
+	    --enable-download=@DOWNLOAD@					\
 	    --disable-building
 distclean:: clean; rm -f Makefile
 Makefile: Makefile.in ; cd .. && ./config.status check-configure/Makefile

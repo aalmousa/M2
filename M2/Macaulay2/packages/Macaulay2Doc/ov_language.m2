@@ -20,7 +20,7 @@ document {
 	  "There is special syntax for creating and accessing strings, lists, sequences, and hash tables.  These are the key data types underlying many new
 	  types.  The Macaulay2 engine implements rings, ring elements, and matrices, as instances of low-level types, and various high-level types,
 	  visible to the user, are based on them.  Examples include ", TO "Ring", ", ", TO "RingElement", ", ", TO "Matrix", ", ", TO "Ideal", ", ", 
-	  TO "RingMap", ", ", TO "Module", ", and ", TO "ChainComplex", "."
+	  TO "RingMap", ", ", TO "Module", ", and ", TO "Complexes::Complex", "."
 	  },
 
      PARA{
@@ -698,43 +698,82 @@ document {
      errors.  Your error message will appear on the screen and execution
      will be stopped.",
      PARA{},
-     "The function ", TO "try", " can be used to catch an error before
-     execution is stopped and to continue or to try something else.",
+     "The keywords ", TO "try", " and ", TO "trap", " can be used to catch an
+     error before execution is stopped and to continue or to try something
+     else.",
      Subnodes => {
 	  TO "error",
 	  TO "try",
 	  TO "throw",
-	  }
+	  TO "trap",
+	  TO "Error",
+	  },
+     SeeAlso => {"stopIfError"}
      }
 
-document {
-     Key => "try",
-     Headline => "catch an error",
-     Usage => "try x then y else z",
-     Inputs => {
-	  "x" => "code",
-	  "y" => "code",
-	  "z" => "code"
-	  },
-     Consequences => {
-	  {"the code ", TT "x", " is run; if no error or ", TO "alarm", " occurs, then the code ", TT "y", " is run; otherwise, the code ", TT "z", " is run"}
-	  },
-     "The return value is the value returned by ", TT "y", " or ", TT "z", ", as the case may be.",
-     PARA{},
-     "The clause '", TT "then y", "' may be omitted, in which case the return value is the value returned by ", TT "x", ", if there is no error or alarm.",
-     PARA{},
-     "The clause '", TT "else z", "' may be omitted,
-     in which case the return value is the value returned by ", TT "y", ",
-     unless an error or alarm occurs, in which case ", TO "null", " is returned.",
-     PARA{},
-     "The clauses '", TT "then y else z", "' may both be omitted, in which case the return value is the value returned by ", TT "x", ", unless an error or
-     alarm occurs, in which case ", TO "null", " is returned.",
-     PARA{},
-     "The behavior of interrupts (other than alarms) is unaffected.",
-     EXAMPLE "apply(-3..3,i->try 1/i else infinity)",
-     Caveat => "We will change the behavior of this function soon so that it will be possible to catch errors of a particular type.  Meanwhile, users are
-     recommended to use this function sparingly, if at all."
-     }
+doc ///
+  Key
+    symbol try
+    symbol except
+  Headline
+    catch an error
+  Usage
+    try x then y else z
+    try x then y except err do z
+  Inputs
+    x: -- code
+    y: -- code
+    err:Symbol
+    z: -- code
+  Consequences
+    Item
+      the code @VAR "x"@ is run; if no error or @TO alarm@ occurs occurs, then
+      the code @VAR "y"@ is run; otherwise, the code @VAR "z"@ is run
+  Description
+    Text
+      The return value is the value returned by @VAR "y"@ or @VAR "z"@, as the
+      case may be.
+    Example
+      apply(-3..3, i -> try 1/i then 1/i else infinity)
+    Text
+      The clause @M2CODE "then y"@ may be omitted, in which case the return
+      value is the value returned by @VAR "x"@ if there is no error or
+      alarm.
+    Example
+      apply(-3..3, i -> try 1/i else infinity)
+    Text
+      The clause @M2CODE "else z"@ may be omitted, in which case the return
+      value is the value returned by @VAR "y"@, unless an error or alarm
+      occurs, in which case @TO null@ is returned.
+    Example
+      apply(-3..3, i -> try 1/i then 1/i)
+    Text
+      The clauses @M2CODE "then y else z"@ may both be omitted, in which case
+      the return value is the value returned by @VAR "x"@, unless an error or
+      alarm occurs, in which case @TO null@ is returned.
+    Example
+      apply(-3..3, i -> try 1/i)
+    Text
+      In the alternate form @M2CODE "try x then y except err do z"@,
+      @VAR "x"@ is first evaluated. If no error occurs, then the value of
+      @VAR "y"@ is returned, or the value of @VAR "x"@ if the @M2CODE "then y"@
+      clause is omitted. If an error occurs, then the corresponding @TO Error@
+      object is assigned to the symbol specified by @VAR "err"@. That symbol is
+      then available during the evaluation of @VAR "z"@, whose value is
+      returned.
+    Example
+      apply(-3..3, i -> try 1/i then 1/i except err do err)
+      apply(-3..3, i -> try 1/i except err do err)
+      oo#3
+    Text
+      The behavior of interrupts (other than alarms) is unaffected.
+  Caveat
+    We will change the behavior of this function soon so that it will be
+    possible to catch errors of a particular type.  Meanwhile, users are
+    recommended to use this function sparingly, if at all.
+  SeeAlso
+    symbol trap
+///
 
 document {
      Key => "break",
@@ -1065,11 +1104,13 @@ document {
           TO symbol .? ,
           TO symbol # ,
           TO symbol #? ,
+	  TO symbol @@? ,
      "arithmetic operators",
           TO symbol ! ,
 	  TO symbol + ,
 	  TO symbol - ,
 	  TO symbol * ,
+	  TO symbol · ,
 	  TO symbol / ,
 	  TO symbol // ,
 	  TO symbol % ,
@@ -1078,6 +1119,8 @@ document {
 	  TO symbol ++ ,
 	  TO symbol ** ,
           TO symbol ^** ,
+	  TO symbol ⊠ ,
+	  TO symbol ⧢ ,
           TO symbol ~ ,
 	  TO symbol (*) ,
           TO symbol : ,

@@ -8,10 +8,22 @@ newPackage("MultigradedBGG",
 	{Name => "Tara Gomes",	    	     Email => "gomes072@umn.edu",      HomePage => "https://cse.umn.edu/math/tara-gomes" },
 	{Name => "Prashanth Sridhar",	     Email => "pzs0094@auburn.edu",    HomePage => "https://sites.google.com/view/prashanthsridhar/home"},
 	{Name => "Eduardo Torres Davila",    Email => "torre680@umn.edu",      HomePage => "https://etdavila10.github.io/" },
-	{Name => "Sasha	Zotine",    	     Email => "zotinea@mcmaster.ca",   HomePage => "https://sites.google.com/view/szotine/home" }
+	{Name => "Sasha Zotine",    	     Email => "zotinea@mcmaster.ca",   HomePage => "https://sites.google.com/view/szotine/home" }
     },
     PackageExports => {"NormalToricVarieties", "Complexes"},
-    Keywords => {"Commutative Algebra"}
+    Keywords => {"Commutative Algebra"},
+    Certification => {
+	"journal name" => "Journal of Software for Algebra and Geometry",
+	"journal URI" => "https://msp.org/jsag/",
+	"article title" => "The multigraded BGG correspondence in Macaulay2",
+	"acceptance date" => "2025-06-02",
+	"published article URI" => "https://msp.org/jsag/2025/15-1/p05.xhtml",
+	"published article DOI" => "10.2140/jsag.2025.15.57",
+	"published code URI" => "https://msp.org/jsag/2025/15-1/jsag-v15-n1-x05-MultigradedBGG.m2",
+	"version at publication" => "1.2",
+	"volume number" => "15",
+	"volume URI" => "https://msp.org/jsag/2025/15-1/"
+	}
   )
 
 export {

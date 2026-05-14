@@ -39,10 +39,10 @@ endforeach()
 string(REPLACE ";" " " COMPILEFLAGS "${COMPILE_OPTIONS}")
 
 # C compiler flags
-set(CFLAGS   "${COMPILEFLAGS} -w -Wimplicit -Werror")
+set(CFLAGS   "${CMAKE_C_FLAGS}")
 
 # C++ compiler flags
-set(CXXFLAGS "${COMPILEFLAGS} -std=gnu++11 -w -Wno-mismatched-tags -Wno-deprecated-register")
+set(CXXFLAGS "${CMAKE_CXX_FLAGS}")
 
 # Linker flags
 string(REPLACE ";" " " LDFLAGS "${LINK_OPTIONS}")
@@ -147,8 +147,8 @@ else()
   set(EIGEN_BUILD_TYPE Release)
 endif()
 ExternalProject_Add(build-eigen
-  URL               https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.tar.bz2
-  URL_HASH          SHA256=0fa5cafe78f66d2b501b43016858070d52ba47bd9b1016b0165a7b8e04675677
+  URL               https://gitlab.com/libeigen/eigen/-/archive/5.0.0/eigen-5.0.1.tar.bz2
+  URL_HASH          SHA256=f1148db76cba8df51c9624195e5f36bedc2d1eca6c6e4f77b576635c79f9668c
   PREFIX            libraries/eigen
   BINARY_DIR        libraries/eigen/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
@@ -157,6 +157,7 @@ ExternalProject_Add(build-eigen
                     -DBUILD_TESTING=${BUILD_TESTING}
                     -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
                     -DCMAKE_CXX_FLAGS=${CXXFLAGS}
+                    -DINCLUDE_INSTALL_DIR:PATH=include
   INSTALL_COMMAND   ${CMAKE_COMMAND} --install . ${strip_setting}
           COMMAND   ${CMAKE_COMMAND} -E make_directory ${M2_INSTALL_LICENSESDIR}/eigen
           COMMAND   ${CMAKE_COMMAND} -E copy_if_different ../src/build-eigen/COPYING.MPL2 ${M2_INSTALL_LICENSESDIR}/eigen
@@ -211,16 +212,16 @@ _ADD_COMPONENT_DEPENDENCY(libraries bdwgc "" BDWGC_FOUND)
 # NOTE: mpfr puts pointers to gmp numbers in thread local variables, unless
 # specially configured, so we shouldn't tell gmp to use libgc (we used to do that)
 ExternalProject_Add(build-mpfr
-  URL               https://www.mpfr.org/mpfr-current/mpfr-4.2.1.tar.xz
-  URL_HASH          SHA256=277807353a6726978996945af13e52829e3abd7a9a5b7fb2793894e18f1fcbb2
+  URL               https://www.mpfr.org/mpfr-4.2.2/mpfr-4.2.2.tar.gz
+  URL_HASH          SHA256=826cbb24610bd193f36fde172233fb8c009f3f5c2ad99f644d0dea2e16a20e42
   PREFIX            libraries/mpfr
   SOURCE_DIR        libraries/mpfr/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
   BUILD_IN_SOURCE   ON
-  CONFIGURE_COMMAND ${CONFIGURE} --prefix=${M2_HOST_PREFIX}
+  CONFIGURE_COMMAND autoreconf -vif
+            COMMAND ${CONFIGURE} --prefix=${M2_HOST_PREFIX}
                       #-C --cache-file=${CONFIGURE_CACHE}
                       --with-gmp=${GMP_ROOT}
-                      --disable-thread-safe
                       ${shared_setting}
                       ${assert_setting}
                       CPPFLAGS=${CPPFLAGS}
@@ -281,13 +282,12 @@ _ADD_COMPONENT_DEPENDENCY(libraries mpfi "gmp;mpfr" MPFI_FOUND)
 
 # http://shoup.net/ntl
 ExternalProject_Add(build-ntl
-  URL               https://github.com/libntl/ntl/archive/refs/tags/v11.5.1.tar.gz
-  URL_HASH          SHA256=ef578fa8b6c0c64edd1183c4c303b534468b58dd3eb8df8c9a5633f984888de5
+  URL               https://libntl.org/ntl-11.6.0.tar.gz
+  URL_HASH          SHA256=bc0ef9aceb075a6a0673ac8d8f47d5f8458c72fe806e4468fbd5d3daff056182
   PREFIX            libraries/ntl
   SOURCE_DIR        libraries/ntl/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
   BUILD_IN_SOURCE   ON
-  PATCH_COMMAND     patch --batch -p1 < ${CMAKE_SOURCE_DIR}/libraries/ntl/patch-11.5.1
   CONFIGURE_COMMAND cd src && ${CONFIGURE} PREFIX=${M2_HOST_PREFIX}
                       #-C --cache-file=${CONFIGURE_CACHE}
                       TUNE=generic
@@ -383,7 +383,7 @@ ExternalProject_Add(build-factory
   SOURCE_DIR        libraries/factory/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
   BUILD_IN_SOURCE   ON
-#  PATCH_COMMAND     patch --batch < ${CMAKE_SOURCE_DIR}/libraries/factory/patch-4.4.0
+  PATCH_COMMAND     patch --batch -p1 < ${CMAKE_SOURCE_DIR}/libraries/factory/patch-4.4.1
   CONFIGURE_COMMAND autoreconf -vif &&
                     ${CONFIGURE} --prefix=${M2_HOST_PREFIX}
                       #-C --cache-file=${CONFIGURE_CACHE}
@@ -446,8 +446,8 @@ _ADD_COMPONENT_DEPENDENCY(libraries frobby gmp FROBBY_FOUND)
 # https://github.com/cddlib/cddlib
 # https://www.inf.ethz.ch/personal/fukudak/cdd_home/
 ExternalProject_Add(build-cddlib
-  URL               https://github.com/cddlib/cddlib/releases/download/0.94m/cddlib-0.94m.tar.gz
-  URL_HASH          SHA256=70dffdb3369b8704dc75428a1b3c42ab9047b81ce039f12f427e2eb2b1b0dee2
+  URL               https://github.com/cddlib/cddlib/releases/download/0.94n/cddlib-0.94n.tar.gz
+  URL_HASH          SHA256=b87ee07ba2c1d0ab92a3e4eccacdf568f981a095a392e3b9efd7e7e4a9e125b1
   PREFIX            libraries/cddlib
   SOURCE_DIR        libraries/cddlib/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
@@ -485,8 +485,8 @@ endif()
 
 # https://github.com/algebraic-solving/msolve
 ExternalProject_Add(build-msolve
-  URL               https://github.com/algebraic-solving/msolve/archive/refs/tags/v0.7.5.tar.gz
-  URL_HASH          SHA256=e88368abfd1e1918329ff9444164ca0e304835794fec68d192a63c845ae63128
+  URL               https://github.com/algebraic-solving/msolve/archive/refs/tags/v0.9.5.tar.gz
+  URL_HASH          SHA256=92b94775cd5a046de307e2ad0fc576d2631e43fbd0eb7749517a033d7e77ddf4
   PREFIX            libraries/msolve
   SOURCE_DIR        libraries/msolve/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
@@ -511,20 +511,24 @@ ExternalProject_Add(build-msolve
   TEST_EXCLUDE_FROM_MAIN ON
   STEP_TARGETS      install test
   )
-_ADD_COMPONENT_DEPENDENCY(programs msolve "gmp;mpfr;flint" MSOLVE_FOUND)
+_ADD_COMPONENT_DEPENDENCY(programs msolve "gmp;mpfr;flint" MSOLVE)
 
 
 # https://numpi.dm.unipi.it/software/mpsolve
 # Known issue: tests don't work with static library
 ExternalProject_Add(build-mpsolve
-  URL               ${M2_SOURCE_URL}/mpsolve-3.2.1.tar.gz
-  URL_HASH          SHA256=3d11428ae9ab2e020f24cabfbcd9e4d9b22ec572cf70af0d44fe8dae1d51e78e
+  URL               https://numpi.dm.unipi.it/wp-content/uploads/2025/08/mpsolve-3.2.3.tar.bz2
+  URL_HASH          SHA256=1f2e239c698c783b63a5e6903e76316c0335a01d71c466a8551e8a3f790b3971
   PREFIX            libraries/mpsolve
   SOURCE_DIR        libraries/mpsolve/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
   BUILD_IN_SOURCE   ON
-  PATCH_COMMAND     patch --batch -p1 < ${CMAKE_SOURCE_DIR}/libraries/mpsolve/patch-3.2.1
   CONFIGURE_COMMAND autoreconf -vif
+            # yacc-generated files shipped in 3.2.3 tarball result in
+            # errors when using newer compilers, so we remove them so
+            # bison can regenerate them
+            COMMAND rm src/libmps/monomial/yacc-parser.c
+            COMMAND rm src/libmps/monomial/yacc-parser.h
             COMMAND ${CONFIGURE} --prefix=${M2_HOST_PREFIX}
                       #-C --cache-file=${CONFIGURE_CACHE}
                       ${shared_setting}
@@ -646,8 +650,8 @@ _ADD_COMPONENT_DEPENDENCY(libraries fflas_ffpack gmp FFLAS_FFPACK_FOUND)
 
 # https://www.gnu.org/software/glpk/
 ExternalProject_Add(build-glpk
-  URL               https://ftp.gnu.org/gnu/glpk/glpk-4.65.tar.gz
-  URL_HASH          SHA256=4281e29b628864dfe48d393a7bedd781e5b475387c20d8b0158f329994721a10
+  URL               https://ftp.gnu.org/gnu/glpk/glpk-5.0.tar.gz
+  URL_HASH          SHA256=4a1013eebb50f728fc601bdd833b0b2870333c3b3e5a816eeba921d95bec6f15
   PREFIX            libraries/glpk
   SOURCE_DIR        libraries/glpk/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
@@ -767,13 +771,12 @@ set(4ti2_PROGRAMS
   qsolve rays walk zbasis zsolve hilbert graver ppi genmodel gensymm output)
 list(TRANSFORM 4ti2_PROGRAMS PREPEND ${M2_HOST_PREFIX}/bin/ OUTPUT_VARIABLE 4ti2_PROGRAMS)
 ExternalProject_Add(build-4ti2
-  URL               https://github.com/4ti2/4ti2/releases/download/Release_1_6_10/4ti2-1.6.10.tar.gz
-  URL_HASH          SHA256=f7c191beb14246b643e4fd5b18b53d9966693b9e6d3a569441a0e3ca14b1a86b
+  URL               https://github.com/4ti2/4ti2/releases/download/Release_1_6_15/4ti2-1.6.15.tar.gz
+  URL_HASH          SHA256=070e639398fda1a4665b3291e5ea80f2ba280d9bffd50656ad8482d471b96965
   PREFIX            libraries/4ti2
   SOURCE_DIR        libraries/4ti2/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
   BUILD_IN_SOURCE   ON
-  PATCH_COMMAND     mkdir swig # needed because the tar doesn't have a swig directory but 4ti2's Makefile.am seems to need it
   CONFIGURE_COMMAND autoreconf -vif
             COMMAND ${CONFIGURE} --prefix=${M2_HOST_PREFIX}
                       #-C --cache-file=${CONFIGURE_CACHE}
@@ -791,7 +794,7 @@ ExternalProject_Add(build-4ti2
   BUILD_COMMAND     ${MAKE} -j${PARALLEL_JOBS}
   INSTALL_COMMAND   ${MAKE} -j${PARALLEL_JOBS} -C src install-strip
           COMMAND   ${CMAKE_COMMAND} -E make_directory ${M2_INSTALL_LICENSESDIR}/4ti2
-          COMMAND   ${CMAKE_COMMAND} -E copy_if_different README ${M2_INSTALL_LICENSESDIR}/4ti2
+          COMMAND   ${CMAKE_COMMAND} -E copy_if_different README.md ${M2_INSTALL_LICENSESDIR}/4ti2
           COMMAND   ${CMAKE_COMMAND} -E copy_if_different ${4ti2_PROGRAMS} ${M2_INSTALL_PROGRAMSDIR}/
           COMMAND   ${CMAKE_COMMAND} -E remove -f ${4ti2_PROGRAMS}
   TEST_COMMAND      ${MAKE} -j${PARALLEL_JOBS} check
@@ -865,19 +868,19 @@ _ADD_COMPONENT_DEPENDENCY(programs gfan "gmp;cddlib" GFAN)
 # http://www-cgrl.cs.mcgill.ca/~avis/C/lrs.html
 # TODO: the shared library target doesn't work on Apple
 ExternalProject_Add(build-lrslib
-  URL               http://cgm.cs.mcgill.ca/~avis/C/lrslib/archive/lrslib-071.tar.gz
-  URL_HASH          SHA256=d3ea5636bfde3011d43c835773fabe131d9251197b6cc666a52d8caa3e1c7816
+  URL               https://macaulay2.com/Downloads/OtherSourceCode/lrslib-073.tar.gz
+  URL_HASH          SHA256=c49a4ebd856183473d1d5a62785fcdfe1057d5d671d4b96f3a1250eb1afe4e83
   PREFIX            libraries/lrslib
   SOURCE_DIR        libraries/lrslib/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
   BUILD_IN_SOURCE   ON
-  PATCH_COMMAND     patch --batch -p1 < ${CMAKE_SOURCE_DIR}/libraries/lrslib/patch-071
+  PATCH_COMMAND     patch --batch -p1 < ${CMAKE_SOURCE_DIR}/libraries/lrslib/patch-073
   CONFIGURE_COMMAND true
   BUILD_COMMAND     ${MAKE} -j${PARALLEL_JOBS} prefix=${M2_HOST_PREFIX} lrs # all-shared
                       INCLUDEDIR=${GMP_INCLUDE_DIRS}
                       LIBDIR=${GMP_LIBRARY_DIRS}
                       CPPFLAGS=${CPPFLAGS}
-                      CFLAGS=${CFLAGS}
+                      "CFLAGS=${CFLAGS} -Ilrsarith-011"
                       LDFLAGS=${LDFLAGS}
                       CC=${CMAKE_C_COMPILER}
                       RANLIB=${CMAKE_RANLIB}
@@ -932,8 +935,8 @@ set(nauty_BINARIES
   genspecialg gentourng gentreeg hamheuristic labelg linegraphg listg multig newedgeg pickg
   planarg ranlabg shortg showg subdivideg twohamg vcolg watercluster2)
 ExternalProject_Add(build-nauty
-  URL               https://pallini.di.uniroma1.it/nauty2_8_8.tar.gz
-  URL_HASH          SHA256=159d2156810a6bb240410cd61eb641add85088d9f15c888cdaa37b8681f929ce
+  URL               https://pallini.di.uniroma1.it/nauty2_9_3.tar.gz
+  URL_HASH          SHA256=9fc4edae04f88a0f5883985be3b39cf7f898fd6cc96e96b9ee25452743cc1b5b
   PREFIX            libraries/nauty
   SOURCE_DIR        libraries/nauty/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
@@ -969,8 +972,8 @@ _ADD_COMPONENT_DEPENDENCY(libraries nauty "" NAUTY_FOUND)
 # https://www.normaliz.uni-osnabrueck.de/
 # normaliz needs libgmp, libgmpxx, boost, and openmp, and is used by the package Normaliz
 ExternalProject_Add(build-normaliz
-  URL               https://github.com/Normaliz/Normaliz/releases/download/v3.10.4/normaliz-3.10.4.tar.gz
-  URL_HASH          SHA256=9b424f966d553ae32e710b8ab674c7887ddcbf0e5ea08af7f8bc1b587bcbb2aa
+  URL               https://github.com/Normaliz/Normaliz/releases/download/v3.11.1/normaliz-3.11.1.tar.gz
+  URL_HASH          SHA256=9a00d590f0fdcad847e2189696d2842d97ed896ed36c22421874a364047f76e8
   PREFIX            libraries/normaliz
   SOURCE_DIR        libraries/normaliz/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
@@ -1022,19 +1025,19 @@ set(topcom_PROGRAMS
   santos_22_triang       santos_dim4_triang      santos_triang)
 list(TRANSFORM topcom_PROGRAMS PREPEND ${M2_HOST_PREFIX}/bin/ OUTPUT_VARIABLE topcom_PROGRAMS)
 ExternalProject_Add(build-topcom
-  URL               ${M2_SOURCE_URL}/TOPCOM-0.17.8.tar.gz
-  URL_HASH          SHA256=3f83b98f51ee859ec321bacabf7b172c25884f14848ab6c628326b987bd8aaab
+  URL               https://www.wm.uni-bayreuth.de/de/team/rambau_joerg/TOPCOM-Downloads/TOPCOM-1_1_2.tgz
+  URL_HASH          SHA256=4fb10754ee5b76056441fea98f2c8dee5db6f2984d8c14283b49239ad4378ab6
   PREFIX            libraries/topcom
   SOURCE_DIR        libraries/topcom/build
   DOWNLOAD_DIR      ${CMAKE_SOURCE_DIR}/BUILD/tarfiles
   BUILD_IN_SOURCE   ON
-  PATCH_COMMAND     patch --batch -p1 < ${CMAKE_SOURCE_DIR}/libraries/topcom/patch-0.17.8
+  PATCH_COMMAND     patch --batch -p1 < ${CMAKE_SOURCE_DIR}/libraries/topcom/patch-1.1.2
   CONFIGURE_COMMAND autoreconf -vif
             COMMAND ${CONFIGURE} --prefix=${M2_HOST_PREFIX}
                       #-C --cache-file=${CONFIGURE_CACHE}
                       "CPPFLAGS=${CPPFLAGS} -I${GMP_INCLUDE_DIRS} -I${CDDLIB_INCLUDE_DIR}"
                       CFLAGS=${CFLAGS}
-                      CXXFLAGS=${CXXFLAGS}
+                      "CXXFLAGS=${CXXFLAGS} -std=c++17"
                       "LDFLAGS=${LDFLAGS} -L${GMP_LIBRARY_DIRS} -L${CDDLIB_LIBRARY_DIR}"
                       CC=${CMAKE_C_COMPILER}
                       CXX=${CMAKE_CXX_COMPILER}
@@ -1249,7 +1252,7 @@ message("\n## Library information
      GMP Arithmetic    = ${GMP_LIBRARIES}")
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E echo_append "     Optional libs     =")
-foreach(_opt IN ITEMS OMP TBB FFI MPI XML PYTHON MYSQL)
+foreach(_opt IN ITEMS OMP TBB FFI MPI XML PYTHON MYSQL JANSSON)
   if(WITH_${_opt})
     execute_process(COMMAND ${CMAKE_COMMAND} -E echo_append " ${_opt}")
   endif()

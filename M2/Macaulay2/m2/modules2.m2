@@ -59,6 +59,9 @@ tensor(Module, Module) := Module => {} >> opts -> (M, N) -> (
      T.cache.formation = FunctionApplication (tensor, (M,N));
      T)
 
+tensorAssociativity = method()
+tensorAssociativity(Module, Module, Module) := Matrix => (A, B, C) -> map((A ** B) ** C, A ** (B ** C), 1)
+
 -- TODO: this is undocumented and only works correctly in a specific case.
 -- can its goal be accomplished differently?
 Option ** Option := (x,y) -> (
@@ -121,6 +124,10 @@ presentation Module := Matrix => M -> M.cache.presentation ??= (
 
 -----------------------------------------------------------------------------  
 
+-- whether a minimalPresentation is already cached
+-- TODO: simplify this caching system
+hasMinPres = M -> any(select(keys M.cache, Option), o -> o#0 === symbol minimalPresentation)
+
 minimalPresentation(Module) := prune(Module) := Module => opts -> (cacheValue (symbol minimalPresentation => opts)) (M -> (
 	  if isFreeModule M then (
 	       M.cache.pruningMap = id_M;
@@ -171,9 +178,11 @@ addHook((minimalPresentation, Module), (opts, M) -> (
 	  if R === ZZ then (
 	       f := presentation M;
 	       (g,ch) := smithNormalForm(f, ChangeMatrix => {true, false});
-	       piv := select(pivots g,ij -> abs g_ij === 1);
+           pivs := pivots g;
+	       piv := select(pivs, ij -> abs g_ij === 1);
 	       rows := first \ piv;
-	       cols := last \ piv;
+           pivs = last \ pivs;
+           cols := last \ piv | select(toList(0..numColumns f - 1), i -> not isMember(i, pivs));
 	       (g,ch) = (submatrix'(g,rows,cols),submatrix'(ch,rows,));
 	       N := cokernel g;
 	       N.cache.pruningMap = map(M,N,id_(target ch) // ch);	    -- yuk, taking an inverse here, gb should give inverse change matrices, or the pruning map should go the other way

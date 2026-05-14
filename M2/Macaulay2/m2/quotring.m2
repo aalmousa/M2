@@ -103,6 +103,7 @@ ZZp Ideal := opts -> (I) -> (
 	  expression S := x -> expression rawToInteger raw x;
 	  fraction(S,S) := S / S := (x,y) -> if y === 0_S then error "division by zero" else x//y;
 	  S.frac = S;		  -- ZZ/n with n PRIME!
+	  sqrt S := x -> promote(tonelliShanks(lift(x, ZZ), n), S);
       savedQuotients#(typ, n) = S;
       lift(S,QQ) := opts -> liftZZmodQQ;
 	  S))
@@ -231,8 +232,15 @@ Ring / List := Ring / Sequence := QuotientRing => (R,f) -> R / promote(ideal f, 
 
 -----------------------------------------------------------------------------
 
-presentation PolynomialRing := Matrix => R -> map(R^1, R^0, 0)
-presentation QuotientRing   := Matrix => R -> R.presentation ??= (
+ZZ.presentation =
+QQ.presentation = R -> presentation module R
+presentation Ring := Matrix => R -> (
+    if R.?presentation then R.presentation R
+    else notImplemented "presentation for this ring")
+presentation InexactFieldFamily := Matrix => R -> presentation default R
+presentation PolynomialRing :=
+presentation InexactField   := Matrix => R -> presentation module R
+presentation QuotientRing   := Matrix => R -> R.cache.presentation ??= (
 	  S := ambient R;
 	  f := generators ideal R;
 	  while class S === QuotientRing do (		    -- untested code
@@ -275,7 +283,7 @@ char QuotientRing := (stashValue symbol char) ((S) -> (
      if isPrime p or isMember(QQ,S.baseRings) then return if S == 0 then 1 else p;
      relns := presentation S;
      if relns == 0 then return char ring relns;
-     if coefficientRing S =!= ZZ then notImplemented();
+     if ultimate(coefficientRing, S) =!= ZZ then notImplemented();
      g := generators gb relns;
      if g == 0 then return char ring g;
      m := g_(0,0);
@@ -351,6 +359,11 @@ getPrimeWithRootOfUnity(ZZ,ZZ) := opt-> (n,r1) -> (
          );
      (p,r2)
      );
+
+-- the "midpoint" of a polynomial in a quotient ring isn't well-defined
+-- what if it's R/I, but I has generators with intervals as coefficients?
+midpoint QuotientRing := R -> (
+    if isFinitePrimeField R then R else error "not well-defined")
 
 -- Local Variables:
 -- compile-command: "make -C $M2BUILDDIR/Macaulay2/m2 "

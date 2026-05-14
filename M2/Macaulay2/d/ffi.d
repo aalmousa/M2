@@ -250,6 +250,10 @@ ffiIntegerType(e:Expr):Expr := (
     else WrongNumArgs(2));
 setupfun("ffiIntegerType", ffiIntegerType);
 
+gmpFinalizer(obj:voidPointer, clientData:voidPointer):void := (
+    Ccode(void, "(void)", obj);
+    Ccode(void, "mpz_clear((mpz_ptr)", clientData, ")"));
+
 -- returns pointer to integer object with given value
 -- inputs (x:ZZ, y:ZZ, signed:Boolean)
 -- x = value
@@ -270,7 +274,7 @@ ffiIntegerAddress(e:Expr):Expr := (
 			ptr := getMem(pointerSize);
 			Ccode(void, "*(mpz_ptr *)", ptr, " = ", z);
 			Ccode(void, "GC_REGISTER_FINALIZER(", ptr, ", ",
-			    "(GC_finalization_proc)mpz_clear, ", z, ", 0, 0)");
+			    gmpFinalizer, ", ", z, ", 0, 0)");
 			toExpr(ptr))
 		    else when a.2
 		    is signed:Boolean do (
@@ -381,6 +385,10 @@ ffiRealType(e:Expr):Expr := (
     else WrongArgZZ());
 setupfun("ffiRealType", ffiRealType);
 
+mpfrFinalizer(obj:voidPointer, clientData:voidPointer):void := (
+    Ccode(void, "(void)", obj);
+    Ccode(void, "mpfr_clear((mpfr_ptr)", clientData, ")"));
+
 -- returns pointer to real number object with given value
 -- inputs: (x:RR, y:ZZ)
 -- x = value
@@ -400,10 +408,8 @@ ffiRealAddress(e:Expr):Expr := (
 			Ccode(void, "mpfr_set(", z, ", ", x.v, ", MPFR_RNDN)");
 			ptr := getMem(pointerSize);
 			Ccode(void, "*(mpfr_ptr *)", ptr, " = ", z);
-			-- TODO: we get segfaults during garbage collection
-			-- if the following is uncommented
-			-- Ccode(void, "GC_REGISTER_FINALIZER(", ptr, ", ",
-			--  "(GC_finalization_proc)mpfr_clear, ", z, ", 0, 0)");
+			 Ccode(void, "GC_REGISTER_FINALIZER(", ptr, ", ",
+			     mpfrFinalizer, ", ", z, ", 0, 0)");
 			toExpr(ptr))
 		    else if bits == 32 || bits == 64 then (
 			ptr := getMemAtomic(bits / 8);
@@ -679,3 +685,19 @@ ffiFunctionPointerAddress(e:Expr):Expr := (
 	else WrongArg(1, "a function"))
     else WrongNumArgs(2));
 setupfun("ffiFunctionPointerAddress", ffiFunctionPointerAddress);
+
+getMemory0(e:Expr):Expr := (
+    when e
+    is a:Sequence
+    do (
+	when a.0
+	is n:ZZcell do (
+	    if !isInt(n) then WrongArgSmallInteger(1)
+	    else when a.1
+	    is atomic:Boolean do (
+		if atomic.v then toExpr(getMemAtomic(toInt(n.v)))
+		else toExpr(getMem(toInt(n.v))))
+	    else WrongArgBoolean(2))
+	else WrongArgZZ(1))
+    else WrongNumArgs(2));
+setupfun("getMemory0", getMemory0);
