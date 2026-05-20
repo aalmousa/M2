@@ -147,22 +147,21 @@ Description
 
         A subquotient module is determined by two matrices $f : R^m \to R^n$
         and $g : R^p \to R^n$.  The subquotient module with generators f, relations
-        g is by definition the module M = (image f) + (image g) / (image g).
-        Thus, if f is the identity map, M = coker g, and if g = 0, then M = image f.
+        g is by definition the module $M = (\text{image } f + \text{image } g) / (\text{image } g)$.
+        Thus, if $f$ is the identity map, $M = \text{coker } g$, and if $g = 0$, then $M = \text{image } f$.
     Example
         use ring M
         M
         N = a*M
         M/N
     Text
-        The two matrices f and g mentioned above are recovered using
-        the routines: generators, relations.
+        The two matrices f and g mentioned above are recovered using the routines: @TO generators@, @TO relations@.
     Example
         generators N
         relations N
 
     Text
-        It is often necessary to find a presentation matrix for such modules.
+        It is often necessary to find a @TO presentation@ matrix for such modules.
     Example
         presentation N
 
@@ -174,7 +173,7 @@ Description
     Example
         trim N
     Text
-        Use minimalPresentation  to also allow the ambient free module to be improved.
+        Use @TO minimalPresentation@ to also allow the ambient free module to be improved.
         This returns a quotient of a free module, but in the future might not do that.
     Example
         minimalPresentation N
@@ -186,7 +185,7 @@ Description
     Text
         Given a subquotient module N, there are several useful modules associated
         to N.
-        The free module of which N is a subquotient is obtained using ambient.
+        The free module of which N is a subquotient is obtained using @TO ambient@.
     Example
         ambient N
     Text
@@ -196,7 +195,7 @@ Description
         ambient N == target relations N
 
     Text
-        N is a submodule of a quotient module $R^n/image(g)$.  The routine super
+        N is a submodule of a quotient module $R^n/image(g)$.  The routine @TO super@
         returns this quotient module
     Example
         super N
@@ -206,7 +205,7 @@ Description
         super N == coker relations N
 
     Text
-        The cover of N is basically the source of the matrix of generators.
+        The @TO cover@ of N is basically the source of the matrix of generators.
     Example
         cover N
         cover N == source generators N
@@ -234,7 +233,7 @@ Description
 
     Text
         The image of F lies in the submodule M of $A^1$.  To obtain the map
-        $M \to M$, we use //.  But first we need the inclusion map
+        $M \to M$, we use @TO "//"@".  But first we need the inclusion map
         of M into $A^1$:
         Later we explain this, but for now, we just write down this map:
     Example
@@ -304,10 +303,14 @@ Description
         some canonical homomorphisms associated to M.
 
     Text
-        exercises:
-        1. isomorphism theorems.  Given submodules M and N of a module P,
+        @BOLD "Some exercises"@:
+
+        1. isomorphism theorems.  Given submodules M and N of a module P:
+
         (a) find $(M+N)/M$
+
         (b) find $N/(M \cap N)$
+
         (c) find in Macaulay2, an isomorphism between them.
 
         2. Given a homomorphism $M \to A$.  Suppose that the image lies in M (M
@@ -351,7 +354,7 @@ Description
         target Hom(M, m) == Hom(M, C)
 
     Text
-        You can go from a matrix to the element of $\text{Hom}$ that represents it using @TT "homomorphism'"@.
+        You can go from a matrix to the element of $\text{Hom}$ that represents it using @TO "homomorphism'"@.
     Example
         m = matrix {{x, 0}, {y, x^2 + x}}
         homomorphism' m
