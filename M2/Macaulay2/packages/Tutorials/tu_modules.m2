@@ -61,8 +61,8 @@ Description
         G = g | g'
         N0 = image G
     Text
-        Multiplication of matrices by an elemen and tensor product with an
-        element have subtle differences under the hood. See @TO "Matrix ** RingElement"@. In this case, we have
+        Multiplication of matrices by a ring element and tensor product with a
+        ring element have subtle differences under the hood. See @TO "Matrix ** RingElement"@. In this case, we have
         opted for tensoring since some degree information is preserved and
         the result is homogeneous.
     Example
