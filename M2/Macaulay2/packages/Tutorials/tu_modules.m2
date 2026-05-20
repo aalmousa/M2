@@ -1,8 +1,8 @@
 doc ///
 Key
-    Tutorial: Modules
+    "Tutorial: Modules in Macaulay2"
 Headline
-    working with modules in Macaulay2
+    working with modules
 Description
 
     Text
@@ -29,7 +29,7 @@ Description
         Macaulay2 can easily find a presentation of any of these modules.
     Example
         presentation M -- this is just the original matrix
-        presenation N -- this requires computation
+        presentation N -- this requires computation
 
 
     Text
@@ -39,7 +39,7 @@ Description
     Example
         I = ideal(a, b)
         N
-        IN
+        I * N
     Text
         You can also multiply a module by an elements of it's ring and you can add submodules together.
     Example
@@ -50,20 +50,20 @@ Description
         homomorphisms $R^1 \rightarrow N$ depending on how you are using them.
     Example
         N_* -- full list of generators
-        N_0, N_1 -- single generators as vectors by index
-        N_{0}, N_{1} -- single generators as matrices by index
+        N_0 -- single generator by index as a vector
+        N_{0} -- single generator by index as a matrix
         N_{0..numgens N - 1} -- full matrix of generators
     Text
         Using this we can easily define specific submodules of a module by giving generators.
     Example
         g = a ** N_{1} -- see note below on use of **
-        g' = N_{2} - N{3}
+        g' = N_{2} - N_{3}
         G = g | g'
         N0 = image G
     Text
-        Multiplication of matrices by an element vs. tensor product with an
-        element have subtle differences under the hood. In this case, we have
-        opted for tensor product since some degree information is preserved and
+        Multiplication of matrices by an elemen and tensor product with an
+        element have subtle differences under the hood. See @TO "Matrix ** RingElement"@. In this case, we have
+        opted for tensoring since some degree information is preserved and
         the result is homogeneous.
     Example
         isHomogeneous N0
@@ -73,13 +73,13 @@ Description
         Nbar = N/N0
     Text
         Notice that the result is a "subquotient" module, we will dig into the
-        details of subquotients and how Macaulay2 represents modules in general
-        later. See @TO "subquotient modules"@ for more details.
+        details of subquotients and how Macaulay2 represents modules in section D below.
+        See @TO "subquotient modules"@ for more details.
     Text
         Ideals and modules are treated differently in Macaulay2 (and in commutative
-        algebra in general).  For example, asking for the dimension of an ideal I
-        in a ring R gives the dimension of the quotient R/I, but the dimension of the
-        module I gives a potentially very different answer.
+        algebra in general).  For example, asking for the dimension of an ideal $I$
+        in a ring $R$ gives the dimension of the quotient $R/I$, but the dimension of
+        $I$ as a module gives a potentially very different answer.
         Use ideal and module to move between the two.
     Example
         I = ideal(a^2, a*b, c^2)
@@ -261,9 +261,9 @@ Description
         M/N
 
     Text
-        If two modules have the same ambient free module, then there is
-        often a canonical map between them.
-        Some modules having the same ambient free module:
+        If two modules have the same ambient free module, then there is often a
+        canonical map between them.  Some modules having the same ambient free
+        module:
     Example
         M
         ambient M
@@ -273,29 +273,31 @@ Description
         super N
         image generators M
     Text
-        If two modules M and N have the same ambient module $R^n$, then inducedMap(M,N)
-        makes the canonical map $N \to M$ between them, if one exists.  If a map
-        doesn't exist, the returned map might not be a homomorphism.
+        If two modules M and N have the same ambient module $R^n$, then @TO
+        inducedMap@ can be used to produce the canonical map between them if one
+        exists. If a map doesn't exist, the returned map might not be a
+        homomorphism.
     Example
-        inducedMap(M,M) == id_M
-        inducedMap(super M,M) == map(super id_M) -- the map $(P+Q)/Q \to R^n/Q$, where $M=(P+Q)/Q$.
-        inducedMap(super M,ambient M) -- the quotient map $R^n \to R^n/Q$
-        inducedMap(M,N) -- the inclusion map
+        inducedMap(M, M) == id_M
+        inducedMap(super M, M) == map(super id_M) -- the map $(P+Q)/Q \to R^n/Q$, where $M=(P+Q)/Q$.
+        inducedMap(super M, ambient M) -- the quotient map $R^n \to R^n/Q$
+        inducedMap(M, N) -- the inclusion map
     Text
         The projection map $M \to M/N$
     Example
-        inducedMap(M/N,M) -- the projection map
+        inducedMap(M/N, M) -- the projection map
     Text
         The projection map $N \to M/N$, which is the zero map
     Example
-        inducedMap(M/N,N) -- the zero map
+        inducedMap(M/N, N) -- the zero map
     Text
-        Not all such maps can be defined.  The functions 'inducedMap' normally checks that the
-        result is a well-defined homomorphism.  The option 'Verify' controls that behavior.
+        Not all such maps can be defined.  The function @TT "inducedMap"@ normally checks that the
+        result is a well-defined homomorphism.  The boolean option @TT "Verify"@
+        lets you specify whether you want this to be checked.
     Example
-        inducedMap(M,M/N,Verify => false)
-        inducedMap(M/N,x*M)
-        inducedMap(M/N,M) * inducedMap(M,x*M) == inducedMap(M/N,x*M)
+        inducedMap(M, M/N, Verify => false)
+        inducedMap(M/N, x*M)
+        inducedMap(M/N, M) * inducedMap(M, x*M) == inducedMap(M/N, x*M)
 
     Text
         Before doing interesting homomorphisms, let's see how to write down
@@ -334,37 +336,45 @@ Description
         ker F
         coker F
     Text
-        Hom is a functor. If you have a matri representing a map $m: M
-        \rightarrow N$, then for any modules $B, C$ you get $\text{Hom}(B, M)
-        \rightarrow \text{Hom}(B, N)$ and $\text{Hom}(M, C)
-        \rightarrow \text{Hom}(N, C)$
+        $\text{Hom}$ is a bi-functor. If $m$ is a matrix representing a map $B
+        \rightarrow C$, then for any module $M$ we have $\text{Hom}(m, M): \text{Hom}(C, M)
+        \rightarrow \text{Hom}(B, M)$ and $\text{Hom}(M, m): \text{Hom}(M, B)
+        \rightarrow \text{Hom}(M, C)$
     Example
         m = matrix{{x,y},{y,x}}
-        source m
-        target m
-        source Hom(m, M) == Hom(source m, M)
-        target Hom(m, M) == Hom(target m, M)
-        source Hom(M, m) == Hom(M, source m)
-        target Hom(M, m) == Hom(M, target m)
+        B = source m;
+        C = target m;
+
+        source Hom(m, M) == Hom(C, M)
+        target Hom(m, M) == Hom(B, M)
+        source Hom(M, m) == Hom(M, B)
+        target Hom(M, m) == Hom(M, C)
+
+    Text
+        You can go from a matrix to the element of $\text{Hom}$ that represents it using @TT "homomorphism'"@.
+    Example
+        m = matrix {{x, 0}, {y, x^2 + x}}
+        homomorphism' m
 
     Text
         @BOLD "H. Tensor products"@
     Text
-        In Macaulay2, ** denotes the tensor product operator.
+        In Macaulay2, @TO "**"@ denotes the tensor product operator. It is an
+        alias for @TO tensor@. Here we see tensor product of matrices and tensor product of modules
     Example
         m ** m
         (coker m) ** (coker m)
+        coker(m ** m)
     Text
-        Notice that tensor products of matrices and of modules are
-        very different.
+        Note that tensor products of matrices and of modules are very different.
+    Text
+        You can also form tensor products of rings.
     Example
-        M = coker m
-        M2 = prune(M ** M)
         A = QQ[a,b,c]
         A ** A
     Text
-        Macaulay2 renames variables whose names collide.
-        Alternatively, one can give the variables as an option to tensor.
+        Macaulay2 will automatically rename variables when there are name collisions.
+        Alternatively, for more control, you can give explicit variables as an option using the tensor form.
     Example
         tensor(A,A,Variables=>{a,b,c,d,e,f})
 ///
