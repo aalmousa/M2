@@ -42,10 +42,6 @@ Node
 ld := fn -> tutorial get (currentFileDirectory|"Tutorials/"|fn)
 
 load "./Tutorials/tu_modules.m2"
--- document {
---      Key => "Tutorial: Modules in Macaulay2",
---      ld "tu_modules.m2"
---      }
 document {
      Key => "Tutorial: Elementary uses of Gröbner bases",
      ld "tu_elementary.m2"
