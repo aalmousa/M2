@@ -1,10 +1,4 @@
 undocumented {
-     (truncate, InfiniteNumber, Thing),
-    [(truncate, InfiniteNumber, Thing), MinimalGenerators],
-     (truncate, InfiniteNumber, InfiniteNumber, Matrix),
-    [(truncate, InfiniteNumber, InfiniteNumber, Matrix), MinimalGenerators],
-     (truncate, Nothing, InfiniteNumber, Matrix),
-    [(truncate, Nothing, InfiniteNumber, Matrix), MinimalGenerators],
     -- TODO:
      (truncate, Nothing, List, Matrix),
     [(truncate, Nothing, List, Matrix), MinimalGenerators],

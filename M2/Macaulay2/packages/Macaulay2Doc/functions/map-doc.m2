@@ -13,7 +13,7 @@ document {
 	  "Y" => "an object, such as a ring, module, or chain complex",
 	  "X" => {"another object of the same type"},
 	  "d" => "a specification, such as a function, list, or 
-	          matrix, or if omitted, understood to specify the identity map"
+ 	          matrix, or if omitted, understood to specify the identity map"
 	  },
      Outputs => {
 	  {"a map to ", TT "Y", " from ", TT "X", " defined by data ", TT "d", "."},

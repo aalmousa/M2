@@ -609,28 +609,47 @@ dgTable List := L ->(
     --transpose matrix{yaxis} | (matrix M || matrix{xaxis})
 )
 
---VIII.Documentations
+--VIII.Documentation
 
 beginDocumentation()
 --Headline
 document { 
 Key => SpaceCurves,
-Headline => "generation of space curves",
+Headline => "Construction of space curves of all possible degrees and genera",
+
 PARA{
-EM "SpaceCurves", " is a package dedicated to generation of curves in P3. 
-The 1.0 version of the package generates smooth curves of a given degree and genus, 
-ACM curves of a given Hilbert function as well as
+    "Gruson and Peskine showed that smooth, irreducible, nondegenerate curves in P3 of all
+    possible degrees and genera allowed by Castelnuovo's Theorem exist, and can be found either on
+    smooth quadric surfaces, smooth cubic surfaces, or smooth quartic surfaces with a double line.
+    The divisor class groups of such surfaces are known, so it is possible to produce such curves
+    explicitly."
+    },
+
+PARA{"The curves that can lie on surfaces of low degree are special in moduli.
+    It is known that the moduli space of curves of genus g is unirational for g<=14. The
+    package ",TO "RandomCurves","  produces curves chosen randomly from the unirational family
+    of curves of genus g in this range, a very different
+    approach."
+    },
+
+PARA{"In this package, SpaceCurves, the main routine 
+produces examples of each possible degree and genus by determining the appropriate surface and
+divisor class, and then choosing a random divisor of this class."},
+
+
+PARA{"The SpaceCurves package also has functions to generate
+ACM curves of a given Hilbert function and
 minimal curves in biliaison class with a given Rao-module."
 },
+
+
 PARA { 
 "The method ", TO "smoothDivisors", " produces a list of ",
 TO "Divisor", " of a given degree on a given surface.
 The method ", TO (curve,Divisor),
  " produces a random 
 curve in a given divisor class.
-For a given degree, as one varies the input surface from  a smooth quadric, a smooth cubic 
-and a rational quartic surface with a double line, 
-all obtainable genus of a smooth curve will occur (save that of a plane curve). 
+
 The methods to create the said surfaces are: ", TO (quadricSurface,Ring), ", ",
 TO (cubicSurface,Ring), " and ", TO (quarticSurfaceRational,Ring), 
 "."
@@ -645,16 +664,19 @@ EXAMPLE {
 },
 PARA {
 " The method ", TO (curve,ZZ,ZZ), 
-" generates a random curve with the specified degree and genus." 
+" generates a random curve with allowable degree and genus by searching for an appropriate
+surface and divisor class. The degree of the surface can be recovered as the minimal degree of the
+generators of the ideal of the curve."
 },
 EXAMPLE {
     "C = curve(5,2);",
-    "degree C, genus C, isPrime C, isSmooth C"    
+    "degree C, genus C, isPrime C, isSmooth C",
+    "I = ideal C; min (I_*/degree)",
 },
 PARA { 
 "The postulation character of a curve is defined to be the negative of the 
-third numerical difference of its Hilbert function, and gives equivalent 
-information as the Hilbert function. The method function ", TO (positiveChars,ZZ), 
+third numerical difference of its Hilbert function, and gives information that is equivalent 
+to the Hilbert function. The method function ", TO (positiveChars,ZZ), 
 " generates all possible postulation characters of an ACM curve of a given degree. The method ",
 TO (allACMBetti,List), " generates all Betti tables of ACM curves with a given 
 postulation character. The method function ", TO (degreeMatrix, BettiTally), " converts the
@@ -1425,7 +1447,7 @@ document {
     Headline => "displays the coordinates of the Divisor"    
 }
 
-end
+end--
 
 
 
