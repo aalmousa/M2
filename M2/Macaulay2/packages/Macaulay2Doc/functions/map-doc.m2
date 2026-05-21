@@ -2,47 +2,6 @@
 --- author(s): 
 --- notes: 
 
-document {
-     Key => (map, GaloisField, GaloisField),
-     Headline => "maps of Galois fields",
-     Usage => "phi = map(F,G)",
-     Inputs => {
-	  "F" => GaloisField,
-	  "G" => GaloisField
-	  },
-     Outputs => {
-	  RingMap => {"the canonical inclusion of ", TT "G", " into a compatible subfield of ", TT "F"}
-	  },
-     "GF(p^n) contains GF(p^m) if and only if ", TT "m", " divides ", TT "n", ".",
-     "The specialized method documented here is ", TT "map(F,G)", ".",
-     EXAMPLE {
-	  "F2 = GF 2",
-	  "F4 = GF(2^2)",
-	  "F8 = GF(2^3)",
-	  "F16 = GF(2^4)",
-	  "map(F16, F2)",
-	  "map(F16, F4)"
-	  },
-     "If no compatible subfield exists, then Macaulay2 signals an error:",
-     EXAMPLE {
-	  "try map(F16, F8) else \"this map does not exist\""
-	  },
-     "It is also possible to invoke the generic ring-map constructor with an explicit image for a generator of the source field:",
-     EXAMPLE {
-	  "map(F16, F4, {1})"
-	  },
-     "Such a map need not be well-defined:",
-     EXAMPLE {
-	  "phi = map(F16, F4, {1})",
-	  "isWellDefined phi"
-	  },
-     SeeAlso => {
-	  isWellDefined,
-	  GF,
-	  (map,Ring,Ring,List)
-	  }
-     }
-
 undocumented {(map, RingFamily, Thing, Thing),(map, Thing, RingFamily, Thing),
     (map, RingFamily, Thing), (map, Thing, RingFamily)}
 
@@ -84,7 +43,7 @@ document {
 	  "Creating a map between modules over different rings",
 	  TO (map,Module,Module,RingMap,Matrix),
 	  "Creating a map between rings",
-	  TO (map,GaloisField,GaloisField),
+	  TO "ConwayPolynomials :: map(GaloisField,GaloisField)",
 	  TO (map,Ring,Ring),
 	  TO (map,Ring,Ring,List),
 	  TO (map,Ring,Ring,Matrix),
