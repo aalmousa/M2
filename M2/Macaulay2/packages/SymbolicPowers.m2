@@ -1527,19 +1527,20 @@ doc ///
 
 
 doc ///
-     Key 
-         SampleSize
-     Headline 
-         optional parameter used for approximating asymptotic invariants that are defined as limits.
-     Example
-       R = QQ[x,y,z];
-       J = ideal (x*(y^3-z^3),y*(z^3-x^3),z*(x^3-y^3));
-       waldschmidt(J, SampleSize=>5)
-       asymptoticRegularity(J, SampleSize=>5)
-     SeeAlso
-     	 waldschmidt
-		 lowerBoundResurgence
-		 asymptoticRegularity
+Key
+	SampleSize
+Headline
+	optional parameter used for approximating asymptotic invariants that are defined as limits.
+Description
+	Example
+		R = QQ[x,y,z];
+		J = ideal (x*(y^3-z^3),y*(z^3-x^3),z*(x^3-y^3));
+		waldschmidt(J, SampleSize=>5)
+		asymptoticRegularity(J, SampleSize=>5)
+SeeAlso
+	waldschmidt
+	lowerBoundResurgence
+	asymptoticRegularity
 ///	   
 
 doc ///
@@ -1583,27 +1584,28 @@ doc ///
 
 
 doc ///
-     Key 
-         InSymbolic
-     Headline 
-         an optional parameter used in containmentProblem.
-     Example
-       R = QQ[x,y,z];
-       J = ideal (x*(y^3-z^3),y*(z^3-x^3),z*(x^3-y^3));
-       containmentProblem(J,3,InSymbolic => true)
-     SeeAlso
-     	 containmentProblem
+Key
+	InSymbolic
+Headline
+	an optional parameter used in containmentProblem.
+Description
+	Example
+		R = QQ[x,y,z];
+		J = ideal (x*(y^3-z^3),y*(z^3-x^3),z*(x^3-y^3));
+		containmentProblem(J,3,InSymbolic => true)
+SeeAlso
+	containmentProblem
 
-///	   
+///
 
 doc ///
-     Key 
+     Key
        	 [containmentProblem,InSymbolic]
-     Headline 
+     Headline
          an optional parameter used in containmentProblem.
-     Usage 
+     Usage
          containmentProblem(I,n,InSymbolic => true)
-     Description	  
+     Description
          Text
        	   Given an ideal I and an integer n, @TO InSymbolic@ is used to ask the following question:
 	   What is the largest power containing the symbolic power $I^{(n)}$?
@@ -1612,8 +1614,8 @@ doc ///
            R = QQ[x,y,z];
 	   J = ideal (x*(y^3-z^3),y*(z^3-x^3),z*(x^3-y^3));
 	   containmentProblem(J,3,InSymbolic => true)
-///	   
-	   
+///
+
 doc ///
      Key 
          asymptoticRegularity
