@@ -1528,20 +1528,20 @@ doc ///
 
 doc ///
 Key
-	SampleSize
+    SampleSize
 Headline
-	optional parameter used for approximating asymptotic invariants that are defined as limits.
+    optional parameter used for approximating asymptotic invariants that are defined as limits.
 Description
-	Example
-		R = QQ[x,y,z];
-		J = ideal (x*(y^3-z^3),y*(z^3-x^3),z*(x^3-y^3));
-		waldschmidt(J, SampleSize=>5)
-		asymptoticRegularity(J, SampleSize=>5)
+    Example
+        R = QQ[x,y,z];
+        J = ideal (x*(y^3-z^3),y*(z^3-x^3),z*(x^3-y^3));
+        waldschmidt(J, SampleSize=>5)
+        asymptoticRegularity(J, SampleSize=>5)
 SeeAlso
-	waldschmidt
-	lowerBoundResurgence
-	asymptoticRegularity
-///	   
+    waldschmidt
+    lowerBoundResurgence
+    asymptoticRegularity
+///
 
 doc ///
      Key 
@@ -1585,17 +1585,16 @@ doc ///
 
 doc ///
 Key
-	InSymbolic
+    InSymbolic
 Headline
-	an optional parameter used in containmentProblem.
+    an optional parameter used in containmentProblem.
 Description
-	Example
-		R = QQ[x,y,z];
-		J = ideal (x*(y^3-z^3),y*(z^3-x^3),z*(x^3-y^3));
-		containmentProblem(J,3,InSymbolic => true)
+    Example
+        R = QQ[x,y,z];
+        J = ideal (x*(y^3-z^3),y*(z^3-x^3),z*(x^3-y^3));
+        containmentProblem(J,3,InSymbolic => true)
 SeeAlso
-	containmentProblem
-
+    containmentProblem
 ///
 
 doc ///
