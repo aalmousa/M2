@@ -930,41 +930,41 @@ document {
 *-
 
 doc ///
-    Key
-      evaluateH
-      evaluateHx
-      evaluateHt
+Key
+    evaluateH
+    evaluateHx
+    evaluateHt
 
-      (evaluateH,Homotopy,Matrix,Number)
-      (evaluateHx,Homotopy,Matrix,Number)
-      (evaluateHt,Homotopy,Matrix,Number)
+    (evaluateH,Homotopy,Matrix,Number)
+    (evaluateHx,Homotopy,Matrix,Number)
+    (evaluateHt,Homotopy,Matrix,Number)
 
-      (evaluateH,ParameterHomotopy,Matrix,Matrix,Number)
-      (evaluateHx,ParameterHomotopy,Matrix,Matrix,Number)
-      (evaluateHt,ParameterHomotopy,Matrix,Matrix,Number)
+    (evaluateH,ParameterHomotopy,Matrix,Matrix,Number)
+    (evaluateHx,ParameterHomotopy,Matrix,Matrix,Number)
+    (evaluateHt,ParameterHomotopy,Matrix,Matrix,Number)
 
-      (evaluateH,SpecializedParameterHomotopy,Matrix,Number)
-      (evaluateHx,SpecializedParameterHomotopy,Matrix,Number)
-      (evaluateHt,SpecializedParameterHomotopy,Matrix,Number)
+    (evaluateH,SpecializedParameterHomotopy,Matrix,Number)
+    (evaluateHx,SpecializedParameterHomotopy,Matrix,Number)
+    (evaluateHt,SpecializedParameterHomotopy,Matrix,Number)
 
-      (evaluateH,GateHomotopy,Matrix,Number)
-      (evaluateHx,GateHomotopy,Matrix,Number)
-      (evaluateHt,GateHomotopy,Matrix,Number)
+    (evaluateH,GateHomotopy,Matrix,Number)
+    (evaluateHx,GateHomotopy,Matrix,Number)
+    (evaluateHt,GateHomotopy,Matrix,Number)
 
-    Headline
-      evaluate a homotopy and its derivatives
+Headline
+    evaluate a homotopy and its derivatives
 
-    Usage
-      evaluateH(H,x,t)
-      evaluateHx(H,x,t)
-      evaluateHt(H,x,t)
+Usage
+    evaluateH(H,x,t)
+    evaluateHx(H,x,t)
+    evaluateHt(H,x,t)
 
-      evaluateH(H,p,x,t)
-      evaluateHx(H,p,x,t)
-      evaluateHt(H,p,x,t)
+    evaluateH(H,p,x,t)
+    evaluateHx(H,p,x,t)
+    evaluateHt(H,p,x,t)
 
-    Description
-      Text
+Description
+    Text
         These methods evaluate a homotopy and its derivatives at a given point.
 
         @TO evaluateH@ evaluates the homotopy itself,
@@ -975,54 +975,54 @@ doc ///
         For a @TO ParameterHomotopy@, parameter values must also be supplied.
 
     Example
-      variables = declareVariable \ {x,y}
-      T = inputGate symbol T
+        variables = declareVariable \ {x,y}
+        T = inputGate symbol T
 
-      F = matrix{{x^2+y^2-1},{x*y}}
-      G = matrix{{x^2-y-1},{x+y-1}}
+        F = matrix{{x^2+y^2-1},{x*y}}
+        G = matrix{{x^2-y-1},{x+y-1}}
 
-      H = gateHomotopy((1-T)*F + T*G, matrix{{x,y}}, T)
+        H = gateHomotopy((1-T)*F + T*G, matrix{{x,y}}, T)
 
-      X0 = matrix{{.2},{0}}
+        X0 = matrix{{.2},{0}}
 
-      evaluateH(H,X0,0.5)
-      evaluateHx(H,X0,0.5)
-      evaluateHt(H,X0,0.5)
+        evaluateH(H,X0,0.5)
+        evaluateHx(H,X0,0.5)
+        evaluateHt(H,X0,0.5)
     Text
         For a @TO ParameterHomotopy@, parameter values must also be supplied.
 
     Example
-      variables = declareVariable \ {x,y}
-      params = declareVariable \ {a,b}
+        variables = declareVariable \ {x,y}
+        params = declareVariable \ {a,b}
 
-      F = gateSystem(
+        F = gateSystem(
             matrix{params},
             matrix{variables},
             matrix{{a*x*y-1},{x^3+y^2-b}}
-          )
+        )
 
-      PH = parametricSegmentHomotopy F
+        PH = parametricSegmentHomotopy F
 
-      pStart = matrix{{1,2}}
-      pTarget = matrix{{2,1}}
+        pStart = matrix{{1,2}}
+        pTarget = matrix{{2,1}}
 
-      pars = transpose(pStart | pTarget)
+        pars = transpose(pStart | pTarget)
 
-      X0 = matrix{{.5},{1}}
+        X0 = matrix{{.5},{1}}
 
-      evaluateH(PH,pars,X0,0.5)
-      evaluateHx(PH,pars,X0,0.5)
-      evaluateHt(PH,pars,X0,0.5)
+        evaluateH(PH,pars,X0,0.5)
+        evaluateHx(PH,pars,X0,0.5)
+        evaluateHt(PH,pars,X0,0.5)
     Text
         After the parameter homotopy is specialized using @TO specialize@,
-	For a @TO ParameterHomotopy@, parameter values must also be supplied.
+        For a @TO ParameterHomotopy@, parameter values must also be supplied.
 
     Example
-      H01 = specialize(PH, pars)
+        H01 = specialize(PH, pars)
 
-      evaluateH(H01,X0,0.5)
-      evaluateHx(H01,X0,0.5)
-      evaluateHt(H01,X0,0.5)
+        evaluateH(H01,X0,0.5)
+        evaluateHx(H01,X0,0.5)
+        evaluateHt(H01,X0,0.5)
 ///
 
 document {

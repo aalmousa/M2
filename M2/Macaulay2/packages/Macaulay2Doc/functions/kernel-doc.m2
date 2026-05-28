@@ -15,38 +15,47 @@ Node
     syz
 ///
 
-document {
-  Key => {(kernel,Matrix),
-  (kernel, RingElement)},
-  Headline => "kernel of a map of modules",
-  Usage => "kernel f, kernel a",
-  Inputs => {
-    "f" => {"a map of modules ", TT "M --> N"}
-  },
-  Outputs => {
-    Module => {"the kernel of f, a submodule of M"}
-  },
-  PARA{},
-  "The kernel is the submodule of M of all elements mapping to zero under ", TT "f", ".",
-  "If f is a RingElement it is interpreted as a 1 by 1 matrix",".",
-  EXAMPLE lines ///
-    R = ZZ/32003[a,b]/(ideal(a,b))^3
-    M = R^1/(ideal a^2)
-    mat = matrix{{a^2,b^2},{b,a}}
-    ker mat
-    presentation ker mat
-    syz mat
-    f = map(M++M, M++M, mat)
-    ker f
-  ///,
-  SeeAlso => {
-    syz,
-    cokernel,
-    image,
-    map,
+doc ///
+Key
+    (kernel,Matrix)
+    (kernel,RingElement)
+Headline
+    kernel of a map of modules
+Usage
+    kernel f
+    kernel a
+Inputs
+    f:Matrix
+        a map of modules $f:M \rightarrow N$.
+Outputs
+    :Module
+        the kernel of $f$, a submodule of $M$
+Description
+    Text
+        The kernel of $f$ is the submodule of $M$ consisting of all elements that go to zero under $f$.
+    Example
+        R = ZZ/32003[a,b]/(ideal(a,b))^3
+        M = R^1/(ideal a^2)
+        mat = matrix{{a^2,b^2},{b,a}}
+        ker mat
+        presentation ker mat
+        syz mat
+        f = map(M++M, M++M, mat)
+        ker f
+    Text
+        If $a$ is a @TO RingElement@, then $\text{kernel } a$ is the
+        kernel of the $1\times 1$ matrix giving multiplication by $a$:
+        $R^1 \rightarrow R^1$.
+    Example
+        kernel(a + b)
+        kernel((a + b) * id_(R^1))
+SeeAlso
+    syz
+    cokernel
+    image
+    map
     matrix
-  }
-}
+///
 
 doc ///
 Key
