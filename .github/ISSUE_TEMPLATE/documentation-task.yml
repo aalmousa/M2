@@ -1,0 +1,92 @@
+name: Documentation task
+description: File a scoped issue for documentation changes in Macaulay2.
+title: "docs: "
+labels:
+  - documentation
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Documentation area
+      description: Choose the main area affected by this issue.
+      options:
+        - Build and install docs
+        - Internal/reference docs
+        - Package docs
+        - Tutorials and examples
+        - Editor/tooling docs
+        - Contributor guidance
+        - Repository-wide cleanup
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: State the problem in one short paragraph.
+      placeholder: What is wrong, unclear, outdated, or missing?
+    validations:
+      required: true
+
+  - type: textarea
+    id: paths
+    attributes:
+      label: Affected paths
+      description: List the files or directories likely to change.
+      placeholder: |
+        README.md
+        M2/Macaulay2/docs/index.rst
+        M2/Macaulay2/packages/SomePackage/README.md
+    validations:
+      required: true
+
+  - type: textarea
+    id: desired_outcome
+    attributes:
+      label: Desired outcome
+      description: Describe what "done" looks like for this task.
+      placeholder: After this issue is complete, what should a reader be able to do or understand?
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: Say how the updated docs should be checked.
+      placeholder: |
+        Example:
+        - Rerun the commands in the README
+        - Check links
+        - Build the relevant docs, if applicable
+    validations:
+      required: true
+
+  - type: dropdown
+    id: size
+    attributes:
+      label: Estimated size
+      options:
+        - Small
+        - Medium
+        - Large
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: review_flags
+    attributes:
+      label: Review flags
+      options:
+        - label: This issue needs mathematical review.
+        - label: This issue needs examples or commands to be rerun.
+        - label: This issue may require follow-up issues instead of one PR.
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies or blockers
+      description: Note related issues, required decisions, or blockers.
+      placeholder: Optional

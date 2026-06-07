@@ -1445,27 +1445,34 @@ Headline => "Compute invariants of a numerical semigroup",
    The conductor is 1 plus the largest element not in S. We generally specify a semigroup by giving
    a list of positive integers L with gcd = 1, representing the semigroup of all sums of
    elements of L.",
+   PARA{},
+   "A quick way to get started is to build the semigroup ring of a small example and inspect a basic invariant.",
+   EXAMPLE lines ///
+   L = {3,5,7}
+   A = semigroupRing(L, "BaseField" => QQ)
+   isSymmetric L
+   ///,
 
    PARA{},
      SUBSECTION "Combinatorial properties of the Kunz cone",
      UL{
-	TO coneEquations,
-	TO mu,
-	TO facetRays,
-	TO coneRays,
-	TO allSemigroups,
-	TO findSemigroups,
-	TO buchweitzCriterion,
-	TO buchweitz,
-	TO buchweitzSemigroups,
+        TO coneEquations,
+        TO mu,
+        TO facetRays,
+        TO coneRays,
+        TO allSemigroups,
+        TO findSemigroups,
+        TO buchweitzCriterion,
+        TO buchweitz,
+        TO buchweitzSemigroups,
         },
      SUBSECTION "Properties of semigroup rings",
      UL{
         TO burchIndex,
-	TO semigroupRing,
-	TO socle,
-	TO kunzRing,
-	TO isSymmetric
+        TO semigroupRing,
+        TO socle,
+        TO kunzRing,
+        TO isSymmetric
         },
      SUBSECTION "Weierstrass semigroups",
      "The question whether every semigroup is a Weierstrass semigroup was answered negatively 
@@ -1479,17 +1486,18 @@ Headline => "Compute invariants of a numerical semigroup",
      "In this section we implemented Pinkham's approach in POSITIVE CHARACTERISTIC. We plan
      to extend the smoothing results to characteristic 0 in the future.",
      UL{
-	TO makeUnfolding,
-	TO flatteningRelations,
+        TO makeUnfolding,
+        TO flatteningRelations,
         TO getFlatFamily,
-	TO findPoint,
-	TO isARandomFiberSmooth,
-	TO heuristicSmoothness,
+        TO findPoint,
+        TO isARandomFiberSmooth,
+        TO heuristicSmoothness,
 --	TO isSmoothableSemigroup,
-	TO isWeierstrassSemigroup,
-	TO nonWeierstrassSemigroups,
-	TO LabBookProtocol,
-        }     
+        TO isWeierstrassSemigroup,
+        TO nonWeierstrassSemigroups,
+        TO LabBookProtocol,
+        },
+   SeeAlso => {semigroupRing, buchweitz, coneEquations}
 }
 
 doc ///
@@ -3517,5 +3525,4 @@ tally apply(m,k->  #unique flatten apply(toList(1..m-1),i->(j=(k-i)%m; if j=!=0 
 	(am_(i-1)+am_(j-1)-1) else 0)))
 
 18, 24, 25, 26, 28, 30, 33
-
 
