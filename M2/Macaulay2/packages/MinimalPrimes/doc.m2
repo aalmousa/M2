@@ -235,6 +235,15 @@ Node
       elapsedTime radical(ideal I_*, Strategy => Monomial)
       elapsedTime radical(ideal I_*, Unmixed => true)
     Text
+      Sometimes when it is computationally expensive to compute the set of minimal primes of an 
+      ideal the strategy Unmixed can be useful for computing the radical as it does so without
+      computing the set of minimal primes. The example below demonstrates one such instance.
+    Example
+      R = QQ[x,y]
+      I = ideal(x^250 - y^250)
+      elapsedTime radical(ideal I_*, Strategy => Decompose)
+      elapsedTime radical(ideal I_*, Strategy => Unmixed)
+    Text
       For another example, see @TO "PrimaryDecomposition :: PrimaryDecomposition"@.
   References
     Eisenbud, Huneke, Vasconcelos, Invent. Math. 110 207-235 (1992).
